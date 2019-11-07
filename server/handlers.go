@@ -1,0 +1,22 @@
+package server
+
+import (
+	"github.com/gin-gonic/gin"
+)
+
+func loginPage(c *gin.Context) {
+	c.String(200, "Hello World")
+}
+
+func mainPage(c *gin.Context) {
+	c.String(200, "Hello World")
+}
+
+func getAllProducts(c *gin.Context) {
+	c.String(200, "Hello World")
+}
+
+func getProductByID(c *gin.Context) {
+	id := c.Param("id")
+	c.String(200, id)
+}
