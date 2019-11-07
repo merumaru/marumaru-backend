@@ -5,15 +5,15 @@ import (
 )
 
 func loginPage(c *gin.Context) {
-	c.String(200, "Hello World")
+	c.String(200, "loginPage")
 }
 
-func mainPage(c *gin.Context) {
-	c.String(200, "Hello World")
+func listPage(c *gin.Context) {
+	c.String(200, "listPage")
 }
 
 func getAllProducts(c *gin.Context) {
-	c.String(200, "Hello World")
+	c.String(200, "getAllProducts")
 }
 
 func getProductByID(c *gin.Context) {

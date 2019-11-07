@@ -14,9 +14,9 @@ type TimeDuration struct {
 }
 
 type Order struct {
-	SellerID  int
-	BuyerID   int
-	ProductID int
+	SellerID  string
+	BuyerID   string
+	ProductID string
 	TimeDuration
 	CreateData int
 }
