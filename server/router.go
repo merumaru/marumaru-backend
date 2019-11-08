@@ -11,8 +11,8 @@ func setupRoutes(router *gin.Engine) {
 	router.GET("/", hello)
 	router.GET("/login", loginPage)
 	router.GET("/list", attachDB(client, listPage))
-	router.GET("/products", attachDB(client, getAllProducts))
-	router.GET("/products/:id", attachDB(client, getProductByID))
+	router.GET("/products", attachDB(client, getAllProductsHandler))
+	router.GET("/products/:id", attachDB(client, getProductByIDHandler))
 
 }
 
