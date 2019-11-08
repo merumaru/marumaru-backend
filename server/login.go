@@ -2,7 +2,6 @@ package server
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"time"
 
@@ -57,14 +56,17 @@ func Signin(c *gin.Context, client *mongo.Client) {
 	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
 	err := collection.FindOne(ctx, filter).Decode(&result)
 	if err != nil {
-		log.Fatal(err)
+		// No result
+		if err == mongo.ErrNoDocuments {
+			c.String(http.StatusUnauthorized, fmt.Sprintf("No such user name %s!", creds.Username))
+			return
+		} else {
+			// Other problem
+			c.String(http.StatusInternalServerError, err.Error())
+			return
+		}
 	}
 	// expectedPassword, ok := users[creds.Username]
-	// No result
-	if result.Password == "" {
-		c.String(http.StatusUnauthorized, fmt.Sprintf("No such user name %s!", creds.Username))
-		return
-	}
 	// Check password
 	if result.Password != creds.Password {
 		c.String(http.StatusUnauthorized, "Password is incorrected!")
@@ -123,16 +125,16 @@ func SignUp(c *gin.Context, client *mongo.Client) {
 	result := User{}
 	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
 	err := collection.FindOne(ctx, filter).Decode(&result)
-	if err != nil {
-		log.Fatal(err)
+	if err == nil {
+		c.String(http.StatusBadRequest, "Username exists!")
+		return
+
+	}
+	if err != mongo.ErrNoDocuments {
+		c.String(http.StatusInternalServerError, err.Error())
 		return
 	}
 	// expectedPassword, ok := users[creds.Username]
-	// Check Username
-	if result.Username != "" {
-		c.String(http.StatusBadRequest, fmt.Sprintf("User name %s exists!", user.Username))
-		return
-	}
 	// Add user
 	_, err = collection.InsertOne(ctx, user)
 	if err != nil {
