@@ -1,32 +1,41 @@
 # Pull Request
 
-1.  What concepts or problems did you struggle with during the assignment?
-    - What did you spend a lot of time trying to understand?
-    - Are there any concepts you are still uncomfortable with?
+Include a summary of the change and relevant motivation/context. List any dependencies that are required for this change.
 
-// YOUR ANSWER HERE
+Fixes # [ISSUE]
 
-2.  What accomplishments are you proud of with regards to the assignment?
-    - Was there anything you figured out that you are proud of?
-    - Was there anything that you previously struggled with that you managed to figure out?
+### Type of Change:
+**Delete irrelevant options.**
 
-// YOUR ANSWER HERE
+- Code
+- Quality Assurance
+- User Interface
+- Outreach
+- Documentation
 
-3.  Self-reflection score (please see below for reference)
-// YOUR ANSWER HERE
+**Code/Quality Assurance Only**
+- Bug fix (non-breaking change which fixes an issue)
+- This change requires a documentation update (software upgrade on readme file)
+- New feature (non-breaking change which adds functionality pre-approved by mentors)
 
-4.  Other comments or suggestions
 
-// YOUR ANSWER HERE
 
-## Self Reflection Scale
+### How Has This Been Tested?
+Describe the tests you ran to verify your changes. Provide instructions or GIFs so we can reproduce. List any relevant details for your test.
 
-This is for reference only and not inclusive of all possible feelings or levels of accomplishment. Please add your own comments in addition to assigning yourself a number.
 
-|Score|Title|Description|
-|:----:|-----|------------|
-|0|Lost| I was so lost, I did not even know where to start.|
-|1|Struggling|I struggled through this assignment and I do not think I did it correctly.|
-|2|Getting There|I think I did ok. It was difficult, but I managed and I am feeling progress.|
-|3|Acceptable|I was able to complete the basic requirements and I am feeling ok.|
-|4|Strong|I was able to complete the basic requirements and start on the advanced requirements. I feel good.|
+### Checklist:
+**Delete irrelevant options.**
+
+- [ ] My PR follows the style guidelines of this project
+- [ ] I have performed a self-review of my own code or materials
+- [ ] I have commented my code or provided relevant documentation, particularly in hard-to-understand areas
+- [ ] I have made corresponding changes to the documentation
+- [ ] Any dependent changes have been merged 
+
+**Code/Quality Assurance Only**
+- [ ] My changes generate no new warnings 
+- [ ] My PR currently breaks something (fix or feature that would cause existing functionality to not work as expected)
+- [ ] I have added tests that prove my fix is effective or that my feature works
+- [ ] New and existing unit tests pass locally with my changes
+- [ ] Any dependent changes have been published in downstream modules
