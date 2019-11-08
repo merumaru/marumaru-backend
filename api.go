@@ -1,6 +1,6 @@
 package main
 
-import "github.com/codechrysalis/go.pokemon-api/server"
+import "github.com/merumaru/marumaru-backend/server"
 
 func main() {
 	router := server.CreateRouter()

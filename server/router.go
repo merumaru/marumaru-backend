@@ -7,6 +7,7 @@ import (
 func setupRoutes(router *gin.Engine) {
 	// v1 := router.Group("/api/v1")
 
+	router.GET("/", hello)
 	router.GET("/login", loginPage)
 	router.GET("/list", listPage)
 	router.GET("/products", getAllProducts)
