@@ -5,14 +5,12 @@ import (
 	"net/http"
 	"net/http/httptest"
 
-	"github.com/codechrysalis/go.pokemon-api/data"
-	"github.com/codechrysalis/go.pokemon-api/models"
+	"github.com/merumaru/marumaru-backend/data"
+	"github.com/merumaru/marumaru-backend/models"
 
 	"github.com/gin-gonic/gin"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-
-	. "github.com/codechrysalis/go.pokemon-api/server"
 )
 
 func performRequest(r http.Handler, method, path string) *httptest.ResponseRecorder {

@@ -1,22 +1,36 @@
 package server
 
 import (
+	"encoding/json"
+
+	"github.com/codechrysalis/go.pokemon-api/data"
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/mongo"
 )
+
+func hello(c *gin.Context) {
+	c.String(200, "This is indeed a landing page")
+}
 
 func loginPage(c *gin.Context) {
 	c.String(200, "loginPage")
 }
 
-func listPage(c *gin.Context) {
+func listPage(c *gin.Context, client *mongo.Client) {
 	c.String(200, "listPage")
+	// client.Database("test").Collection("product")
 }
 
-func getAllProducts(c *gin.Context) {
-	c.String(200, "getAllProducts")
+func getAllProductsHandler(c *gin.Context, client *mongo.Client) {
+	results := data.GetAllProducts(client)
+	ret, _ := json.Marshal(results)
+	c.JSON(200, ret)
 }
 
-func getProductByID(c *gin.Context) {
+func getProductByIDHandler(c *gin.Context, client *mongo.Client) {
 	id := c.Param("id")
-	c.String(200, id)
+	result := data.GetProductByID(client, string(id))
+	ret, _ := json.Marshal(result)
+	c.JSON(200, ret)
+
 }
