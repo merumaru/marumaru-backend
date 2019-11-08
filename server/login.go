@@ -128,7 +128,6 @@ func SignUp(c *gin.Context, client *mongo.Client) {
 	if err == nil {
 		c.String(http.StatusBadRequest, "Username exists!")
 		return
-
 	}
 	if err != mongo.ErrNoDocuments {
 		c.String(http.StatusInternalServerError, err.Error())

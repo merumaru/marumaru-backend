@@ -11,6 +11,11 @@ import (
 	"github.com/gin-gonic/gin"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+<<<<<<< HEAD
+=======
+
+	. "github.com/merumaru/marumaru-backend/server"
+>>>>>>> master
 )
 
 func performRequest(r http.Handler, method, path string) *httptest.ResponseRecorder {
