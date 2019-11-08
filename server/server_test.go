@@ -11,7 +11,6 @@ import (
 	"github.com/gin-gonic/gin"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-
 	. "github.com/merumaru/marumaru-backend/server"
 )
 

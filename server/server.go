@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -9,6 +10,8 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 // CreateRouter creates and configures a server
@@ -45,4 +48,35 @@ func StartServer(router *gin.Engine) {
 		log.Fatal("Server Shutdown:", err)
 	}
 	log.Println("Server exiting")
+}
+
+func Connect2DB() *mongo.Client {
+	// Set client options
+	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
+	// Connect to MongoDB
+	client, err := mongo.Connect(context.TODO(), clientOptions)
+	if err != nil {
+		log.Fatal(err)
+	}
+	// Check the connection
+	err = client.Ping(context.TODO(), nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("Connected to MongoDB!")
+	return client
+}
+
+func SetDBCollection(client *mongo.Client) (*mongo.Collection, *mongo.Collection) {
+	collectionProduct := client.Database("test").Collection("product")
+	collectionOrder := client.Database("test").Collection("order")
+	return collectionProduct, collectionOrder
+}
+
+func CloseDB(client *mongo.Client) {
+	err := client.Disconnect(context.TODO())
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("Connection to MongoDB closed.")
 }
