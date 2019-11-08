@@ -10,8 +10,8 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 // Create the JWT key used to create the signature
@@ -221,20 +221,27 @@ func checkLogin(c *gin.Context) (*Claims, error) {
 	return claims, err
 }
 
+// func checkName(c *gin.Context) {
+// 	claims, err := checkLogin(c)
+// 	if err != nil {
+// 		return
+// 	}
+
+// }
 // LoginCheckWrapper adds login check to a handler
 // usage: LoginCheckWrapper(handler)
-func LoginCheckWrapper(fn gin.HandlerFunc) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		checkLogin(c)
-		fn(c)
-	}
-}
+// func LoginCheckWrapper(fn gin.HandlerFunc) gin.HandlerFunc {
+// 	return func(c *gin.Context) {
+// 		checkLogin(c)
+// 		fn(c)
+// 	}
+// }
 
 // LoginCheckWrapperWithDB adds login check to a handler with db client
 // usage: LoginCheckWrapperWithDB(handlerWithDB)
-func LoginCheckWrapperWithDB(fn HandlerFuncWithDB) HandlerFuncWithDB {
-	return func(c *gin.Context, client *mongo.Client) {
-		checkLogin(c)
-		fn(c, client)
-	}
-}
+// func LoginCheckWrapperWithDB(fn HandlerFuncWithDB) HandlerFuncWithDB {
+// 	return func(c *gin.Context, client *mongo.Client) {
+// 		checkLogin(c)
+// 		fn(c, client)
+// 	}
+// }
