@@ -13,6 +13,10 @@ func setupRoutes(router *gin.Engine) {
 	router.GET("/list", attachDB(client, listPage))
 	router.GET("/products", attachDB(client, getAllProductsHandler))
 	router.GET("/products/:id", attachDB(client, getProductByIDHandler))
+	router.POST("/login", attachDB(client, Signin))
+	router.GET("/welcome", Welcome)
+	router.POST("/refresh", Refresh)
+	router.POST("/signup", attachDB(client, SignUp))
 
 }
 
