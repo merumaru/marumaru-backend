@@ -3,8 +3,8 @@ package server
 import (
 	"encoding/json"
 
-	"github.com/codechrysalis/go.pokemon-api/data"
 	"github.com/gin-gonic/gin"
+	"github.com/merumaru/marumaru-backend/data"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
