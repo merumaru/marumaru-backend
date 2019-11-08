@@ -13,7 +13,9 @@ func setupRoutes(router *gin.Engine) {
 	router.GET("/list", attachDB(client, listPage))
 	router.GET("/products", attachDB(client, getAllProductsHandler))
 	router.GET("/products/:id", attachDB(client, getProductByIDHandler))
-
+	router.POST("/login", attachDB(client, Signin))
+	router.GET("/welcome", Welcome)
+	router.POST("/refresh", Refresh)
 }
 
 func attachDB(client *mongo.Client, fn func(*gin.Context, *mongo.Client)) gin.HandlerFunc {
