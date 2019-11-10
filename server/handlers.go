@@ -5,6 +5,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/merumaru/marumaru-backend/data"
+	"github.com/merumaru/marumaru-backend/models"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -39,5 +41,20 @@ func getProductByIDHandler(c *gin.Context, client *mongo.Client) {
 		return
 	}
 	c.JSON(200, result)
+}
 
+func insertProductHandler(c *gin.Context, client *mongo.Client) {
+	var product models.Product
+	if err := c.BindJSON(&product); err != nil {
+		c.String(400, err.Error())
+		return
+	}
+	// automatically assign an ID
+	product.ID = primitive.NewObjectID()
+	err := data.Insert(client, &product)
+	if err != nil {
+		c.String(500, "Insertion failed.")
+		return
+	}
+	c.String(200, "finished")
 }

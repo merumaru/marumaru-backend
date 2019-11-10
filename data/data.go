@@ -34,3 +34,10 @@ func GetProductByID(client *mongo.Client, id string) (*models.Product, error) {
 	fmt.Printf("Found a single document: %+v\n", result)
 	return &result, err
 }
+
+func Insert(client *mongo.Client, product *models.Product) error {
+	collection := client.Database("test").Collection("trainers")
+	res, err := collection.InsertOne(context.TODO(), *product)
+	fmt.Println("%T", res.InsertedID)
+	return err
+}
