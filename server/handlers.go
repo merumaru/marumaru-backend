@@ -1,10 +1,12 @@
 package server
 
 import (
-	"encoding/json"
+	"fmt"
 
 	"github.com/gin-gonic/gin"
 	"github.com/merumaru/marumaru-backend/data"
+	"github.com/merumaru/marumaru-backend/models"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -22,15 +24,37 @@ func listPage(c *gin.Context, client *mongo.Client) {
 }
 
 func getAllProductsHandler(c *gin.Context, client *mongo.Client) {
-	results := data.GetAllProducts(client)
-	ret, _ := json.Marshal(results)
-	c.JSON(200, ret)
+	results, err := data.GetAllProducts(client)
+	if err != nil {
+		c.String(500, "Get Products failed.")
+		return
+	}
+	c.JSON(200, results)
 }
 
 func getProductByIDHandler(c *gin.Context, client *mongo.Client) {
 	id := c.Param("id")
-	result := data.GetProductByID(client, string(id))
-	ret, _ := json.Marshal(result)
-	c.JSON(200, ret)
+	result, err := data.GetProductByID(client, string(id))
+	fmt.Println(result)
+	if err != nil {
+		c.String(500, "Get Product by ID failed.")
+		return
+	}
+	c.JSON(200, result)
+}
 
+func insertProductHandler(c *gin.Context, client *mongo.Client) {
+	var product models.Product
+	if err := c.BindJSON(&product); err != nil {
+		c.String(400, err.Error())
+		return
+	}
+	// automatically assign an ID
+	product.ID = primitive.NewObjectID()
+	err := data.Insert(client, &product)
+	if err != nil {
+		c.String(500, "Insertion failed.")
+		return
+	}
+	c.String(200, "finished")
 }
