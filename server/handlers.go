@@ -22,8 +22,12 @@ func listPage(c *gin.Context, client *mongo.Client) {
 }
 
 func getAllProductsHandler(c *gin.Context, client *mongo.Client) {
-	results := data.GetAllProducts(client)
-	c.JSON(200, *results)
+	results, err := data.GetAllProducts(client)
+	if err != nil {
+		c.String(500, "Get Products failed.")
+		return
+	}
+	c.JSON(200, results)
 }
 
 func getProductByIDHandler(c *gin.Context, client *mongo.Client) {

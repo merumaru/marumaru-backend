@@ -36,9 +36,9 @@ func main() {
 	formate := "2006-01-02"
 	start, _ := time.Parse(formate, "2018-05-31")
 	end, _ := time.Parse(formate, "2018-05-31")
-	product1 := models.Product{[]string{"url1", "url2"}, "name", "desp",
+	product1 := models.Product{[]string{"url1", "url2"}, "sellerid", "name", "desp",
 		100, models.TimeDuration{start, end}, []int{models.Book}}
-	product2 := models.Product{[]string{"url1", "url2"}, "name", "desp",
+	product2 := models.Product{[]string{"url1", "url2"}, "sellerid", "name", "desp",
 		100, models.TimeDuration{start, end}, []int{models.Book}}
 	products := []interface{}{product1, product2}
 	// insert one
