@@ -1,7 +1,7 @@
 package server
 
 import (
-	"encoding/json"
+	"fmt"
 
 	"github.com/gin-gonic/gin"
 	"github.com/merumaru/marumaru-backend/data"
@@ -23,14 +23,17 @@ func listPage(c *gin.Context, client *mongo.Client) {
 
 func getAllProductsHandler(c *gin.Context, client *mongo.Client) {
 	results := data.GetAllProducts(client)
-	ret, _ := json.Marshal(results)
-	c.JSON(200, ret)
+	c.JSON(200, *results)
 }
 
 func getProductByIDHandler(c *gin.Context, client *mongo.Client) {
 	id := c.Param("id")
-	result := data.GetProductByID(client, string(id))
-	ret, _ := json.Marshal(result)
-	c.JSON(200, ret)
+	result, err := data.GetProductByID(client, string(id))
+	fmt.Println(result)
+	if err != nil {
+		c.String(500, "Get Product by ID failed.")
+		return
+	}
+	c.JSON(200, result)
 
 }

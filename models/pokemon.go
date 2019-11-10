@@ -23,6 +23,7 @@ type Order struct {
 
 type Product struct {
 	Photos      []string
+	SellerID    string
 	Name        string
 	Description string
 	Price       float32
