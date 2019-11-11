@@ -29,10 +29,10 @@ type Order struct {
 type Product struct {
 	ID          primitive.ObjectID `bson:"_id, omitempty"`
 	Photos      []string
-	SellerID    string
+	SellerName  string
 	Name        string
 	Description string
 	Price       float32
 	TimeDuration
-	Tags []int
+	Tags []string
 }
