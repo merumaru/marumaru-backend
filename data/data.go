@@ -64,6 +64,23 @@ func GetOrderByID(client *mongo.Client, id string) (*models.Order, error) {
 	return &result, err
 }
 
+func GetOrderByProductID(client *mongo.Client, id string) (*[]models.Order, error) {
+	var results []models.Order
+	collection := client.Database(cfg.DatabaseName).Collection(cfg.OrderCollection)
+	objID, _ := primitive.ObjectIDFromHex(id) // id is something like "5dc4c0b433f5f1b10da0c599"
+	filter := bson.D{{"productid", objID}}
+
+	cur, err := collection.Find(context.TODO(), filter)
+	for cur.Next(context.TODO()) {
+		var tmp models.Order
+		err := cur.Decode(&tmp)
+		if err == nil {
+			results = append(results, tmp)
+		}
+	}
+	return &results, err
+}
+
 func GetOrderByUserID(client *mongo.Client, id string) (*[]models.Order, error) {
 	var results []models.Order
 	collection := client.Database(cfg.DatabaseName).Collection(cfg.OrderCollection)

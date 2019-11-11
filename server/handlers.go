@@ -110,9 +110,19 @@ func getProductByUserIDHandler(c *gin.Context, client *mongo.Client) {
 	c.JSON(200, results)
 }
 
-func GetOrderByUserIDHandler(c *gin.Context, client *mongo.Client) {
+func getOrderByUserIDHandler(c *gin.Context, client *mongo.Client) {
 	id := c.Param("id")
 	results, err := data.GetOrderByUserID(client, id)
+	if err != nil {
+		c.String(500, "Get Products failed.")
+		return
+	}
+	c.JSON(200, results)
+}
+
+func getOrderByProductIDHandler(c *gin.Context, client *mongo.Client) {
+	id := c.Param("id")
+	results, err := data.GetOrderByProductID(client, id)
 	if err != nil {
 		c.String(500, "Get Products failed.")
 		return
@@ -153,9 +163,9 @@ func editProductHandler(c *gin.Context, client *mongo.Client) {
 		c.String(400, err.Error())
 		return
 	}
-	
+
 	id := c.Param("id")
-	
+
 	err := data.Update(client, &product, string(id))
 	if err != nil {
 		c.String(500, "Update failed.")
