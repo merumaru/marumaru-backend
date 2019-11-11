@@ -146,3 +146,20 @@ func rentProductHandler(c *gin.Context, client *mongo.Client) {
 	}
 	c.String(200, "product rented")
 }
+
+func editProductHandler(c *gin.Context, client *mongo.Client) {
+	var product models.Product
+	if err := c.BindJSON(&product); err != nil {
+		c.String(400, err.Error())
+		return
+	}
+	
+	id := c.Param("id")
+	
+	err := data.Update(client, &product, string(id))
+	if err != nil {
+		c.String(500, "Update failed.")
+		return
+	}
+	c.String(200, "finished")
+}
