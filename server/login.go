@@ -9,6 +9,7 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
+	"github.com/merumaru/marumaru-backend/cfg"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
@@ -55,7 +56,7 @@ func Signin(c *gin.Context, client *mongo.Client) {
 		return
 	}
 
-	collection := client.Database("testing").Collection("users")
+	collection := client.Database(cfg.DatabaseName).Collection(cfg.UserCollectionn)
 	filter := bson.M{"username": creds.Username}
 	result := User{}
 	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
@@ -125,7 +126,7 @@ func SignUp(c *gin.Context, client *mongo.Client) {
 		c.String(400, "Invalid input")
 		return
 	}
-	collection := client.Database("testing").Collection("users")
+	collection := client.Database(cfg.DatabaseName).Collection(cfg.UserCollectionn)
 	filter := bson.M{"username": user.Username}
 	result := User{}
 	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
@@ -194,7 +195,7 @@ func GetUserByCookie(c *gin.Context, client *mongo.Client) {
 		c.String(http.StatusInternalServerError, err.Error())
 		return
 	}
-	collection := client.Database("testing").Collection("users")
+	collection := client.Database(cfg.DatabaseName).Collection(cfg.UserCollectionn)
 	filter := bson.M{"username": claims.Username}
 	result := User{}
 	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
