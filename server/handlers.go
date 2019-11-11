@@ -2,6 +2,7 @@ package server
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/merumaru/marumaru-backend/data"
@@ -57,11 +58,38 @@ func insertProductHandler(c *gin.Context, client *mongo.Client) {
 	}
 	// automatically assign an ID
 	product.ID = primitive.NewObjectID()
-	product.SellerName = claims.Username
+	product.SellerID = claims.Username
 	err = data.Insert(client, &product)
 	if err != nil {
 		c.String(500, "Insertion failed.")
 		return
 	}
 	c.String(200, "finished")
+}
+
+func rentProductHandler(c *gin.Context, client *mongo.Client) {
+	claims, err := checkLogin(c)
+	if err != nil {
+		c.String(500, "Insertion failed.")
+		return
+	}
+
+	var product models.Product
+	id := c.Param("id")
+	if err := c.BindJSON(&product); err != nil {
+		c.String(400, err.Error())
+		return
+	}
+	buyerName := claims.Username
+
+	dateFormat := "2006-01-02"
+	startDate, _ := time.Parse(dateFormat, c.Query("startDate"))
+	endDate, _ := time.Parse(dateFormat, c.Query("endDate"))
+
+	err = data.RentProduct(client, string(id), buyerName, startDate, endDate)
+	if err != nil {
+		c.String(500, "Rent failed.")
+		return
+	}
+	c.String(200, "product rented")
 }
