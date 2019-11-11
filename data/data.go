@@ -3,6 +3,7 @@ package data
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/merumaru/marumaru-backend/models"
 	"go.mongodb.org/mongo-driver/bson"
@@ -38,6 +39,28 @@ func GetProductByID(client *mongo.Client, id string) (*models.Product, error) {
 func Insert(client *mongo.Client, product *models.Product) error {
 	collection := client.Database("test").Collection("products")
 	res, err := collection.InsertOne(context.TODO(), *product)
+	fmt.Println("%T", res.InsertedID)
+	return err
+}
+
+func RentProduct(client *mongo.Client, productID string, buyerName string, startDate time.Time, endDate time.Time) error {
+	var result models.Product
+	collection := client.Database("test").Collection("products")
+	objID, _ := primitive.ObjectIDFromHex(productID)
+	filter := bson.D{{"_id", objID}}
+
+	err := collection.FindOne(context.TODO(), filter).Decode(&result)
+
+	order := models.Order{
+		SellerID:     result.SellerID,
+		BuyerID:      buyerName,
+		ProductID:    productID,
+		TimeDuration: models.TimeDuration{Start: startDate, End: endDate},
+		IsCancelled:  false,
+	}
+	order.ID = primitive.NewObjectID()
+	collectionOrder := client.Database("test").Collection("orders")
+	res, err := collectionOrder.InsertOne(context.TODO(), order)
 	fmt.Println("%T", res.InsertedID)
 	return err
 }

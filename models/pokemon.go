@@ -23,13 +23,13 @@ type Order struct {
 	BuyerID   string
 	ProductID string
 	TimeDuration
-	CreateData int
+	IsCancelled bool
 }
 
 type Product struct {
 	ID          primitive.ObjectID `bson:"_id, omitempty"`
 	Photos      []string
-	SellerName  string
+	SellerID    string
 	Name        string
 	Description string
 	Price       float32
