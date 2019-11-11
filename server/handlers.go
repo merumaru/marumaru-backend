@@ -44,7 +44,18 @@ func getProductByIDHandler(c *gin.Context, client *mongo.Client) {
 	c.JSON(200, result)
 }
 
-func insertProductHandler(c *gin.Context, client *mongo.Client) {
+func getOrderByIDHandler(c *gin.Context, client *mongo.Client) {
+	id := c.Param("id")
+	result, err := data.GetOrderByID(client, string(id))
+	fmt.Println(result)
+	if err != nil {
+		c.String(500, "Get Product by ID failed.")
+		return
+	}
+	c.JSON(200, result)
+}
+
+func addProductHandler(c *gin.Context, client *mongo.Client) {
 	claims, err := checkLogin(c)
 	if err != nil {
 		c.String(500, "Insertion failed.")
@@ -59,12 +70,54 @@ func insertProductHandler(c *gin.Context, client *mongo.Client) {
 	// automatically assign an ID
 	product.ID = primitive.NewObjectID()
 	product.SellerID = claims.Username
-	err = data.Insert(client, &product)
+	err = data.AddProduct(client, &product)
 	if err != nil {
 		c.String(500, "Insertion failed.")
 		return
 	}
 	c.String(200, "finished")
+}
+
+func addOrderHandler(c *gin.Context, client *mongo.Client) {
+	claims, err := checkLogin(c)
+
+	if err != nil {
+		c.String(500, "Insertion failed.")
+		return
+	}
+	var order models.Order
+	if err := c.BindJSON(&order); err != nil {
+		c.String(400, err.Error())
+		return
+	}
+	order.ID = primitive.NewObjectID()
+	order.BuyerName = claims.Username
+	err = data.AddOrder(client, &order)
+	if err != nil {
+		c.String(500, "Insertion failed.")
+		return
+	}
+	c.String(200, "finished")
+}
+
+func getProductByUserIDHandler(c *gin.Context, client *mongo.Client) {
+	id := c.Param("id")
+	results, err := data.GetProductByUserID(client, id)
+	if err != nil {
+		c.String(500, "Get Products failed.")
+		return
+	}
+	c.JSON(200, results)
+}
+
+func GetOrderByUserIDHandler(c *gin.Context, client *mongo.Client) {
+	id := c.Param("id")
+	results, err := data.GetOrderByUserID(client, id)
+	if err != nil {
+		c.String(500, "Get Products failed.")
+		return
+	}
+	c.JSON(200, results)
 }
 
 func rentProductHandler(c *gin.Context, client *mongo.Client) {

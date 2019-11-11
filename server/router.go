@@ -11,14 +11,21 @@ func setupRoutes(router *gin.Engine) {
 	router.GET("/", hello)
 	router.GET("/login", loginPage)
 	router.GET("/list", attachDB(client, listPage))
+
 	router.GET("/products", attachDB(client, getAllProductsHandler))
-	router.GET("/products/:id", attachDB(client, getProductByIDHandler))
+	router.GET("/product/:id", attachDB(client, getProductByIDHandler))
+	router.GET("/product-user/:id", attachDB(client, getProductByUserIDHandler))
+	router.GET("/order-user/:id", attachDB(client, GetOrderByUserIDHandler))
+	router.GET("/order/:id", attachDB(client, getOrderByIDHandler))
+	router.POST("/addproduct", attachDB(client, addProductHandler))
+	router.POST("/addorder", attachDB(client, addOrderHandler))
+
 	router.POST("/user/login", attachDB(client, Signin))
 	router.GET("/user/welcome", Welcome)
 	router.POST("/user/refresh", Refresh)
 	router.POST("/user/signup", attachDB(client, SignUp))
 	router.GET("/user", attachDB(client, GetUserByCookie))
-	router.POST("/add", attachDB(client, insertProductHandler))
+
 	router.POST("/products/:id/rent", attachDB(client, rentProductHandler))
 	router.PATCH("/edit/:id", attachDB(client, editProductHandler))
 }
