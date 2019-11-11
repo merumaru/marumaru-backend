@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/merumaru/marumaru-backend/cfg"
 	"github.com/merumaru/marumaru-backend/models"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -13,7 +14,7 @@ import (
 
 func GetAllProducts(client *mongo.Client) (*[]models.Product, error) {
 	var results []models.Product
-	collection := client.Database("test").Collection("products")
+	collection := client.Database(cfg.DatabaseName).Collection(cfg.ProductCollection)
 	cur, err := collection.Find(context.TODO(), bson.D{})
 	for cur.Next(context.TODO()) {
 		var tmp models.Product
@@ -54,7 +55,7 @@ func GetProductByUserID(client *mongo.Client, id string) (*[]models.Product, err
 
 func GetOrderByID(client *mongo.Client, id string) (*models.Order, error) {
 	var result models.Order
-	collection := client.Database("test").Collection("orders")
+	collection := client.Database().Collection()
 	objID, _ := primitive.ObjectIDFromHex(id) // id is something like "5dc4c0b433f5f1b10da0c599"
 	filter := bson.D{{"_id", objID}}
 
