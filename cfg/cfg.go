@@ -1,7 +1,7 @@
 package cfg
 
 const (
-	DatabaseName      = "marumaru"
+	DatabaseName      = "testing"
 	ProductCollection = "products"
 	OrderCollection   = "orders"
 	UserCollectionn   = "users"
