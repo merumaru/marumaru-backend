@@ -6,7 +6,7 @@ jobs:
   build:
     docker:
       # specify the version
-      - image: circleci/golang:1.9
+      - image: circleci/golang:1.13.0
       - image: circleci/mongo:4.2.0
 
       # Specify service dependencies here if necessary
@@ -24,6 +24,4 @@ jobs:
 
       # specify any bash command here prefixed with `run: `
       - run: go get -v -t -d ./...
-      - run: go build
-      - run: go get -u github.com/gin-gonic/gin
       - run: go test -v ./...
