@@ -69,8 +69,8 @@ func addProductHandler(c *gin.Context, client *mongo.Client) {
 	}
 	// automatically assign an ID
 	product.ID = primitive.NewObjectID()
-	product.SellerName = claims.Username
-	err = data.AddProduct(client, &product)
+	product.SellerID = claims.Username
+	err = data.Insert(client, &product)
 	if err != nil {
 		c.String(500, "Insertion failed.")
 		return

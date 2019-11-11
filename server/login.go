@@ -10,6 +10,8 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -26,9 +28,12 @@ type HandlerFuncWithDB func(*gin.Context, *mongo.Client)
 // }
 
 type User struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
-	Email    string `json:"email"`
+	ID          primitive.ObjectID `bson:"_id, omitempty"`
+	Username    string             `json:"username"`
+	Password    string             `json:"password"`
+	Email       string             `json:"email"`
+	Address     string             `json:"address"`
+	PhoneNumber string             `json:"phonenumber"`
 }
 
 type Claims struct {
@@ -135,9 +140,10 @@ func SignUp(c *gin.Context, client *mongo.Client) {
 	}
 	// expectedPassword, ok := users[creds.Username]
 	// Add user
+	user.ID = primitive.NewObjectID()
 	_, err = collection.InsertOne(ctx, user)
 	if err != nil {
-		c.String(http.StatusInternalServerError, "Add user fails!")
+		c.String(http.StatusInternalServerError, err.Error())
 		return
 	}
 	c.String(http.StatusOK, "Sign up successfully!")
@@ -177,10 +183,37 @@ func Refresh(c *gin.Context) {
 	}
 
 	c.SetCookie("token", tokenString, expirationTime.Second(), "/", "", true, false)
+	c.String(http.StatusOK, "Refresh a new token!")
+	return
+}
+
+// GetUserByCookie returns the whole user struct by cookie
+func GetUserByCookie(c *gin.Context, client *mongo.Client) {
+	claims, err := checkLogin(c)
+	if err != nil {
+		c.String(http.StatusInternalServerError, err.Error())
+		return
+	}
+	collection := client.Database("testing").Collection("users")
+	filter := bson.M{"username": claims.Username}
+	result := User{}
+	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
+	err = collection.FindOne(ctx, filter).Decode(&result)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			c.String(http.StatusBadRequest, "User not found")
+			return
+		}
+		c.String(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, result)
 	return
 }
 
 // Check login or not
+// Return a claim with username
 func checkLogin(c *gin.Context) (*Claims, error) {
 	t, err := c.Cookie("token")
 	// Initialize a new instance of `Claims`
@@ -222,27 +255,25 @@ func checkLogin(c *gin.Context) (*Claims, error) {
 	return claims, err
 }
 
-// func checkName(c *gin.Context) {
-// 	claims, err := checkLogin(c)
-// 	if err != nil {
-// 		return
-// 	}
-
-// }
-// LoginCheckWrapper adds login check to a handler
-// usage: LoginCheckWrapper(handler)
-// func LoginCheckWrapper(fn gin.HandlerFunc) gin.HandlerFunc {
-// 	return func(c *gin.Context) {
-// 		checkLogin(c)
-// 		fn(c)
-// 	}
-// }
-
-// LoginCheckWrapperWithDB adds login check to a handler with db client
-// usage: LoginCheckWrapperWithDB(handlerWithDB)
-// func LoginCheckWrapperWithDB(fn HandlerFuncWithDB) HandlerFuncWithDB {
-// 	return func(c *gin.Context, client *mongo.Client) {
-// 		checkLogin(c)
-// 		fn(c, client)
-// 	}
-// }
+// checkName checks the login stage and
+// if the username outer handler gets is the same as the one in cookie
+// usage:
+// ok, err := checkName(c, username)
+// if err != nil {
+//// handle internal error of jwt
+// c.String(http.StatusInternalServerError, err.Error())
+// return
+//}
+// if !ok {
+//// username not match
+// c.String(http.StatusBadRequest, "User name not match!")
+//}
+func checkName(c *gin.Context, username string) (bool, error) {
+	claims, err := checkLogin(c)
+	if err != nil {
+		return false, err
+	} else if claims.Username != username {
+		return false, nil
+	}
+	return true, nil
+}

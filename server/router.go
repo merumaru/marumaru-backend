@@ -20,11 +20,13 @@ func setupRoutes(router *gin.Engine) {
 	router.POST("/addproduct", attachDB(client, addProductHandler))
 	router.POST("/addorder", attachDB(client, addOrderHandler))
 
-	router.POST("/login", attachDB(client, Signin))
-	router.GET("/welcome", Welcome)
-	router.POST("/refresh", Refresh)
-	router.POST("/signup", attachDB(client, SignUp))
+	router.POST("/user/login", attachDB(client, Signin))
+	router.GET("/user/welcome", Welcome)
+	router.POST("/user/refresh", Refresh)
+	router.POST("/user/signup", attachDB(client, SignUp))
+	router.GET("/user", attachDB(client, GetUserByCookie))
 
+	router.POST("/products/:id/rent", attachDB(client, rentProductHandler))
 }
 
 func attachDB(client *mongo.Client, fn func(*gin.Context, *mongo.Client)) gin.HandlerFunc {

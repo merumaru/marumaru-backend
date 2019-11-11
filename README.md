@@ -16,6 +16,102 @@ Plan to implement all short goals within deadline, and as many long term goals a
 
 
 ### Login and Register
+----
+**Signin**
+  For user sign in.
+
+* **URL**
+
+  /user/login
+  Make sure set {"Cookie": #cookie_token#} in your header.
+
+* **Method:**
+  
+  `POST`
+  
+* **Success Response:**
+  
+  * **Code:** 200 <br />
+ 
+* **Error Response:**
+
+  * **Code:** 401 <br />
+  * **Code:** 500 <br />
+
+----
+**SignUp**
+  For user sign up.
+
+* **URL**
+
+  /user/signup
+
+* **Method:**
+  
+  `POST`
+
+* **Data Params**
+
+  A JSON of a User struct,
+  where username, password, email must be nonempty.
+* **Success Response:**
+  
+  * **Code:** 200 <br />
+  In response header, {"Set-Cookie": #cookie_token#} included.
+
+* **Error Response:**
+
+  * **Code:** 401 <br />
+  * **Code:** 400 <br />
+  * **Code:** 500 <br />
+
+----
+
+**Refresh**
+  Refresh the token in the background by the client application.
+* **URL**
+
+  /user/refresh
+  Make sure set {"Cookie": #cookie_token#} in your header.
+
+* **Method:**
+  
+  `POST`
+
+* **Success Response:**
+  
+  * **Code:** 200 <br />
+  In response header, A token {"Set-Cookie": #cookie_token#} included.
+
+* **Error Response:**
+
+  * **Code:** 401 <br />
+  * **Code:** 400 <br />
+  * **Code:** 500 <br />
+
+----
+
+**GetUserByCookie**
+GetUserByCookie returns the whole user struct by your cookie
+* **URL**
+
+  /user
+  Make sure set {"Cookie": #cookie_token#} in your header.
+
+* **Method:**
+  
+  `GET`
+
+* **Success Response:**
+  
+  * **Code:** 200 <br />
+  A JSON file of User struct included in body.
+* **Error Response:**
+
+  * **Code:** 401 <br />
+  * **Code:** 400 <br />
+  * **Code:** 500 <br />
+----
 
 ### Get products, or get single product
 
