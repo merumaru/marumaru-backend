@@ -44,6 +44,12 @@ func getProductByIDHandler(c *gin.Context, client *mongo.Client) {
 }
 
 func insertProductHandler(c *gin.Context, client *mongo.Client) {
+	claims, err := checkLogin(c)
+	if err != nil {
+		c.String(500, "Insertion failed.")
+		return
+	}
+
 	var product models.Product
 	if err := c.BindJSON(&product); err != nil {
 		c.String(400, err.Error())
@@ -51,7 +57,8 @@ func insertProductHandler(c *gin.Context, client *mongo.Client) {
 	}
 	// automatically assign an ID
 	product.ID = primitive.NewObjectID()
-	err := data.Insert(client, &product)
+	product.SellerName = claims.Username
+	err = data.Insert(client, &product)
 	if err != nil {
 		c.String(500, "Insertion failed.")
 		return
