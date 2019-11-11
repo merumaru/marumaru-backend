@@ -18,12 +18,12 @@ type TimeDuration struct {
 }
 
 type Order struct {
-	ID        primitive.ObjectID `bson:"_id, omitempty"`
-	SellerID  string
-	BuyerID   string
-	ProductID string
+	ID         primitive.ObjectID `bson:"_id, omitempty"`
+	SellerName string
+	BuyerName  string
+	ProductID  primitive.ObjectID
 	TimeDuration
-	CreateData int
+	CreateData time.Time
 }
 
 type Product struct {
