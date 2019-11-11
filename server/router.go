@@ -21,6 +21,7 @@ func setupRoutes(router *gin.Engine) {
 	router.POST("/add", attachDB(client, insertProductHandler))
 	router.POST("/products/:id/rent", attachDB(client, rentProductHandler))
 	router.PATCH("/edit/:id", attachDB(client, editProductHandler))
+	router.PATCH("/cancel/:id", attachDB(client, cancelProductHandler))
 }
 
 func attachDB(client *mongo.Client, fn func(*gin.Context, *mongo.Client)) gin.HandlerFunc {

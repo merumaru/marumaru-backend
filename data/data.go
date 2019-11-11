@@ -72,3 +72,30 @@ func Update(client *mongo.Client, product *models.Product, id string) error {
 	_,err := collection.UpdateOne(context.TODO(), filter, *product)
 	return err
 }
+
+
+func Cancel1(client *mongo.Client, userID string, id string) error {
+	t := time.Now()
+	collection := client.Database("test").Collection("orders")
+	usrID, _ := primitive.ObjectIDFromHex(userID)
+
+	objID, _ := primitive.ObjectIDFromHex(id)
+
+	filter := bson.M{"BuyerID": bson.M{"$eq": usrID}, "ProductID": bson.M{"$eq": objID}, "TimeDuration.Start": bson.M{"$gte": t}}
+	update := bson.M{"$set": bson.M{"IsCancelled": true}}
+	_,err := collection.UpdateMany(context.TODO(), filter, update)
+	return err
+}
+
+func Cancel2(client *mongo.Client, userID string, id string) error {
+	t := time.Now()
+	collection := client.Database("test").Collection("orders")
+	usrID, _ := primitive.ObjectIDFromHex(userID)
+
+	objID, _ := primitive.ObjectIDFromHex(id)
+
+	filter := bson.M{"SellerID": bson.M{"$eq": usrID}, "ProductID": bson.M{"$eq": objID}, "TimeDuration.Start": bson.M{"$gte": t}}
+	update := bson.M{"$set": bson.M{"IsCancelled": true}}
+	_,err := collection.UpdateMany(context.TODO(), filter, update)
+	return err
+}
