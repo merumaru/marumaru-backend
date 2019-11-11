@@ -20,7 +20,7 @@ func setupRoutes(router *gin.Engine) {
 	router.PATCH("/products/:id/edit", attachDB(client, editProductHandler))
 
 	router.POST("/orders", attachDB(client, addOrderHandler))
-	router.GET("/orders-user/:id", attachDB(client, GetOrderByUserIDHandler))
+	router.GET("/orders-user/:id", attachDB(client, getOrderByUserIDHandler))
 	router.GET("/orders/:id", attachDB(client, getOrderByIDHandler))
 
 	router.POST("/users/login", attachDB(client, Signin))
