@@ -137,7 +137,7 @@ func SignUp(c *gin.Context, client *mongo.Client) {
 	// Add user
 	_, err = collection.InsertOne(ctx, user)
 	if err != nil {
-		c.String(http.StatusInternalServerError, "Add user fails!")
+		c.String(http.StatusInternalServerError, err.Error())
 		return
 	}
 	c.String(http.StatusOK, "Sign up successfully!")
@@ -245,21 +245,3 @@ func checkName(c *gin.Context, username string) (bool, error) {
 	}
 	return true, nil
 }
-
-// LoginCheckWrapper adds login check to a handler
-// usage: LoginCheckWrapper(handler)
-// func LoginCheckWrapper(fn gin.HandlerFunc) gin.HandlerFunc {
-// 	return func(c *gin.Context) {
-// 		checkLogin(c)
-// 		fn(c)
-// 	}
-// }
-
-// LoginCheckWrapperWithDB adds login check to a handler with db client
-// usage: LoginCheckWrapperWithDB(handlerWithDB)
-// func LoginCheckWrapperWithDB(fn HandlerFuncWithDB) HandlerFuncWithDB {
-// 	return func(c *gin.Context, client *mongo.Client) {
-// 		checkLogin(c)
-// 		fn(c, client)
-// 	}
-// }
