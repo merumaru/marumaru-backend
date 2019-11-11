@@ -22,7 +22,7 @@ Plan to implement all short goals within deadline, and as many long term goals a
 
 * **URL**
 
-  /user/login
+  /users/login
   Make sure set {"Cookie": #cookie_token#} in your header.
 
 * **Method:**
@@ -44,7 +44,7 @@ Plan to implement all short goals within deadline, and as many long term goals a
 
 * **URL**
 
-  /user/signup
+  /users/signup
 
 * **Method:**
   
@@ -71,7 +71,7 @@ Plan to implement all short goals within deadline, and as many long term goals a
   Refresh the token in the background by the client application.
 * **URL**
 
-  /user/refresh
+  /users/refresh
   Make sure set {"Cookie": #cookie_token#} in your header.
 
 * **Method:**
@@ -95,7 +95,7 @@ Plan to implement all short goals within deadline, and as many long term goals a
 GetUserByCookie returns the whole user struct by your cookie
 * **URL**
 
-  /user
+  /users
   Make sure set {"Cookie": #cookie_token#} in your header.
 
 * **Method:**
