@@ -24,5 +24,6 @@ jobs:
 
       # specify any bash command here prefixed with `run: `
       - run: go get -v -t -d ./...
+      - run: go build
       - run: go get -u github.com/gin-gonic/gin
       - run: go test -v ./...
