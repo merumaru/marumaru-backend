@@ -89,9 +89,9 @@ Plan to implement all short goals within deadline, and as many long term goals a
   * **Code:** 400 <br />
   * **Code:** 500 <br />
 
+----
 
 **GetUserByCookie**
-----
 GetUserByCookie returns the whole user struct by your cookie
 * **URL**
 
