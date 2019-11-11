@@ -8,6 +8,7 @@ require (
 	github.com/gobuffalo/packr/v2 v2.0.0-rc.15
 	github.com/golang/snappy v0.0.1 // indirect
 	github.com/google/go-cmp v0.3.1 // indirect
+	github.com/json-iterator/go v1.1.8 // indirect
 	github.com/onsi/ginkgo v1.7.0
 	github.com/onsi/gomega v1.4.3
 	github.com/tidwall/pretty v1.0.0 // indirect
