@@ -18,6 +18,7 @@ func setupRoutes(router *gin.Engine) {
 	router.POST("/products", attachDB(client, addProductHandler))
 	router.POST("/products/:id/rent", attachDB(client, rentProductHandler))
 	router.PATCH("/products/:id/edit", attachDB(client, editProductHandler))
+	router.PATCH("/products/:id/cancel", attachDB(client, cancelProductHandler))
 
 	router.POST("/orders", attachDB(client, addOrderHandler))
 	router.GET("/orders-user/:id", attachDB(client, getOrderByUserIDHandler))

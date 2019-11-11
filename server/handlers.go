@@ -173,3 +173,21 @@ func editProductHandler(c *gin.Context, client *mongo.Client) {
 	}
 	c.String(200, "finished")
 }
+
+func cancelProductHandler(c *gin.Context, client *mongo.Client) {
+	
+	id := c.Param("id")
+	claims, _ := checkLogin(c)
+	userID := claims.Username
+	
+	if data.Cancel1(client, string(userID), string(id)) != nil {
+		c.String(500, "Cancelation failed.")
+		return
+	}
+
+	if data.Cancel2(client, string(userID), string(id)) != nil {
+		c.String(500, "Cancelation failed.")
+		return
+	}
+	c.String(200, "finished")
+}
