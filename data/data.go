@@ -3,7 +3,6 @@ package data
 import (
 	"context"
 	"fmt"
-	"log"
 
 	"github.com/merumaru/marumaru-backend/models"
 	"go.mongodb.org/mongo-driver/bson"
@@ -11,31 +10,34 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func GetAllProducts(client *mongo.Client) *[]models.Product {
+func GetAllProducts(client *mongo.Client) (*[]models.Product, error) {
 	var results []models.Product
-	collection := client.Database("test").Collection("product")
-	cur, _ := collection.Find(context.TODO(), bson.D{})
+	collection := client.Database("test").Collection("trainers")
+	cur, err := collection.Find(context.TODO(), bson.D{})
 	for cur.Next(context.TODO()) {
 		var tmp models.Product
 		err := cur.Decode(&tmp)
-		if err != nil {
-			log.Fatal("Error on Decoding the document", err)
+		if err == nil {
+			results = append(results, tmp)
 		}
-		results = append(results, tmp)
 	}
-	return &results
+	return &results, err
 }
 
-func GetProductByID(client *mongo.Client, id string) *models.Product {
+func GetProductByID(client *mongo.Client, id string) (*models.Product, error) {
 	var result models.Product
-	collection := client.Database("test").Collection("product")
+	collection := client.Database("test").Collection("trainers")
 	objID, _ := primitive.ObjectIDFromHex(id) // id is something like "5dc4c0b433f5f1b10da0c599"
 	filter := bson.D{{"_id", objID}}
 
 	err := collection.FindOne(context.TODO(), filter).Decode(&result)
 	fmt.Printf("Found a single document: %+v\n", result)
-	if err != nil {
-		log.Fatal(err)
-	}
-	return &result
+	return &result, err
+}
+
+func Insert(client *mongo.Client, product *models.Product) error {
+	collection := client.Database("test").Collection("trainers")
+	res, err := collection.InsertOne(context.TODO(), *product)
+	fmt.Println("%T", res.InsertedID)
+	return err
 }
