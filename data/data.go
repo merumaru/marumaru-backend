@@ -64,3 +64,11 @@ func RentProduct(client *mongo.Client, productID string, buyerName string, start
 	fmt.Println("%T", res.InsertedID)
 	return err
 }
+
+func Update(client *mongo.Client, product *models.Product, id string) error {
+	collection := client.Database("test").Collection("products")
+	objID, _ := primitive.ObjectIDFromHex(id)
+	filter := bson.M{"_id": bson.M{"$eq": objID}}
+	_,err := collection.UpdateOne(context.TODO(), filter, *product)
+	return err
+}
