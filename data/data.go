@@ -66,21 +66,11 @@ func GetOrderByID(client *mongo.Client, id string) (*models.Order, error) {
 func GetOrderByUserID(client *mongo.Client, id string) (*[]models.Order, error) {
 	var results []models.Order
 	collection := client.Database("test").Collection("orders")
-	// filter := bson.D{{"sellername", id}, {"$or", []interface{}{
-	// 	bson.D{{"buyername", id}},
-	// }}}
-	// filter := bson.D{{"sellername", id}}
-	// findQuery := bson.M{"sellername": id}
-	// orQuery := []bson.M{}
-	// orQuery = append(orQuery, bson.M{"buyername": id})
 
 	filter := bson.M{"$or": []bson.D{bson.D{{"sellername", id}}, bson.D{{"buyername", id}}}}
 
 	cur, err := collection.Find(context.TODO(), filter)
-	fmt.Println(id)
-	fmt.Println(cur)
 	for cur.Next(context.TODO()) {
-
 		var tmp models.Order
 		err := cur.Decode(&tmp)
 		if err == nil {
@@ -112,10 +102,11 @@ func RentProduct(client *mongo.Client, productID string, buyerName string, start
 
 	err := collection.FindOne(context.TODO(), filter).Decode(&result)
 
+	id, _ := primitive.ObjectIDFromHex(productID)
 	order := models.Order{
-		SellerID:     result.SellerID,
-		BuyerID:      buyerName,
-		ProductID:    productID,
+		SellerName:   result.SellerID,
+		BuyerName:    buyerName,
+		ProductID:    id,
 		TimeDuration: models.TimeDuration{Start: startDate, End: endDate},
 		IsCancelled:  false,
 	}
