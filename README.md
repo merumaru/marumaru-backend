@@ -22,7 +22,7 @@ Plan to implement all short goals within deadline, and as many long term goals a
 
 * **URL**
 
-  /user/login
+  /users/login
   Make sure set {"Cookie": #cookie_token#} in your header.
 
 * **Method:**
@@ -32,7 +32,7 @@ Plan to implement all short goals within deadline, and as many long term goals a
 * **Success Response:**
   
   * **Code:** 200 <br />
- 
+
 * **Error Response:**
 
   * **Code:** 401 <br />
@@ -44,7 +44,7 @@ Plan to implement all short goals within deadline, and as many long term goals a
 
 * **URL**
 
-  /user/signup
+  /users/signup
 
 * **Method:**
   
@@ -71,7 +71,7 @@ Plan to implement all short goals within deadline, and as many long term goals a
   Refresh the token in the background by the client application.
 * **URL**
 
-  /user/refresh
+  /users/refresh
   Make sure set {"Cookie": #cookie_token#} in your header.
 
 * **Method:**
@@ -95,7 +95,7 @@ Plan to implement all short goals within deadline, and as many long term goals a
 GetUserByCookie returns the whole user struct by your cookie
 * **URL**
 
-  /user
+  /users
   Make sure set {"Cookie": #cookie_token#} in your header.
 
 * **Method:**
@@ -115,7 +115,79 @@ GetUserByCookie returns the whole user struct by your cookie
 
 ### Get products, or get single product
 
+**getAllProductsHandler**
+getAllProductsHandler returns all the products in the database
+
+- **URL**
+
+  /products
+
+- **Method:**
+
+  `GET`
+
+- **Success Response:**
+
+  - **Code:** 200 <br />
+    A JSON file of Product list.
+
+- **Error Response:**
+
+  - **Code:** 500 <br />
+
+----
+
+**getProductByIDHandler**
+
+getProductByIDHandler returns the product with the given product id.
+
+* **URL**
+
+  /product/:id
+
+  id is the product id, it should be an uuid.
+
+* **Method:**
+
+  `GET`
+
+* **Success Response:**
+
+  - **Code:** 200 <br />
+    A JSON file of the Product.
+
+* **Error Response:**
+
+  - **Code:** 500 <br />
+
 ### Add new product
+
+**getProductByIDHandler**
+
+getProductByIDHandler returns the product with the given product id.
+
+- **URL**
+
+  /products
+
+  Make sure set {"Cookie": #cookie_token#} in your header.
+
+- **Method:**
+
+  `POST`
+
+* **Data Params**
+
+  A JSON of a Product struct,
+  where Photos , Name, Description,  Price, TimeDuration, Tags should be included.
+
+- **Success Response:**
+
+  - **Code:** 200 <br />
+  
+- **Error Response:**
+
+  - **Code:** 500 <br />
 
 ### Buy product
 
@@ -126,6 +198,14 @@ GetUserByCookie returns the whole user struct by your cookie
 ### Edit listings
 
 ### User profile for history
+
+**getProductByUserIDHandler**
+
+**getOrderByUserIDHandler**
+
+**getOrderByIDHandler**
+
+**getOrderByProductIDHandler**
 
 ### Reviews / comments
 
