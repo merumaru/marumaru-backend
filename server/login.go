@@ -10,6 +10,8 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -26,9 +28,12 @@ type HandlerFuncWithDB func(*gin.Context, *mongo.Client)
 // }
 
 type User struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
-	Email    string `json:"email"`
+	ID          primitive.ObjectID `bson:"_id, omitempty"`
+	Username    string             `json:"username"`
+	Password    string             `json:"password"`
+	Email       string             `json:"email"`
+	Address     string             `json:"address"`
+	PhoneNumber string             `json:"phonenumber"`
 }
 
 type Claims struct {
@@ -135,6 +140,7 @@ func SignUp(c *gin.Context, client *mongo.Client) {
 	}
 	// expectedPassword, ok := users[creds.Username]
 	// Add user
+	user.ID = primitive.NewObjectID()
 	_, err = collection.InsertOne(ctx, user)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
@@ -181,7 +187,33 @@ func Refresh(c *gin.Context) {
 	return
 }
 
+// GetUserByCookie returns the whole user struct by cookie
+func GetUserByCookie(c *gin.Context, client *mongo.Client) {
+	claims, err := checkLogin(c)
+	if err != nil {
+		c.String(http.StatusInternalServerError, err.Error())
+		return
+	}
+	collection := client.Database("testing").Collection("users")
+	filter := bson.M{"username": claims.Username}
+	result := User{}
+	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
+	err = collection.FindOne(ctx, filter).Decode(&result)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			c.String(http.StatusBadRequest, "User not found")
+			return
+		}
+		c.String(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, result)
+	return
+}
+
 // Check login or not
+// Return a claim with username
 func checkLogin(c *gin.Context) (*Claims, error) {
 	t, err := c.Cookie("token")
 	// Initialize a new instance of `Claims`

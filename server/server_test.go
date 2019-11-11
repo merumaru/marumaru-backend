@@ -1,13 +1,20 @@
 package server_test
 
 import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	. "github.com/merumaru/marumaru-backend/server"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 func performRequest(r http.Handler, method, path string) *httptest.ResponseRecorder {
@@ -17,28 +24,232 @@ func performRequest(r http.Handler, method, path string) *httptest.ResponseRecor
 	return w
 }
 
+func performRequestWithBody(r http.Handler, method, path string, body io.Reader) *httptest.ResponseRecorder {
+	req, _ := http.NewRequest(method, path, body)
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+	return w
+}
+
+func performRequestWithBodyAndHeader(r http.Handler, method, path string, body io.Reader, key string, value string) *httptest.ResponseRecorder {
+	req, _ := http.NewRequest(method, path, body)
+	req.Header.Set(key, value)
+	w := httptest.NewRecorder()
+	// w.Header().Set(key, value)
+	r.ServeHTTP(w, req)
+	return w
+}
+
 var _ = Describe("Server", func() {
 	var (
 		router   *gin.Engine
 		response *httptest.ResponseRecorder
+		client   *mongo.Client
 	)
 
 	BeforeEach(func() {
 		router = CreateRouter()
+		// StartServer(router)
+		client = Connect2DB()
 	})
 
-	Describe("Version 1 API at /api/v1", func() {
-		Describe("The / endpoint", func() {
+	Describe("login API", func() {
+		var (
+			collection *mongo.Collection
+		)
+		BeforeEach(func() {
+			collection = client.Database("testing").Collection("users")
+			ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
+			// drop the table
+			collection.Drop(ctx)
+		})
+		Describe("register API at /user/signup", func() {
 			BeforeEach(func() {
-				response = performRequest(router, "GET", "/")
+				user := User{Username: "user1", Password: "password1", Email: "www"}
+				ujson, _ := json.Marshal(user)
+				body := bytes.NewReader(ujson)
+				response = performRequestWithBody(router, "POST", "/user/signup", body)
 			})
 
-			It("Returns with Status 200", func() {
+			It("Add a user", func() {
+				filter := bson.M{"username": "user1"}
+				result := User{}
+				ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
+				err := collection.FindOne(ctx, filter).Decode(&result)
+				Expect(response.Code).To(Equal(200))
+				Expect(err).To(BeNil())
+				Expect(result.Password).To(Equal("password1"))
+				Expect(result.Email).To(Equal("www"))
+			})
+		})
+
+		Describe("register API at /user/signup", func() {
+			BeforeEach(func() {
+				user := User{Username: "user1", Password: "password1", Email: ""}
+				ujson, _ := json.Marshal(user)
+				body := bytes.NewReader(ujson)
+				response = performRequestWithBody(router, "POST", "/user/signup", body)
+			})
+
+			It("Add a invalid user", func() {
+				Expect(response.Code).To(Equal(400))
+			})
+		})
+
+		Describe("register API at /user/signup", func() {
+			BeforeEach(func() {
+				user := User{Username: "user1", Password: "password1", Email: ""}
+				ujson, _ := json.Marshal(user)
+				body := bytes.NewReader(ujson)
+				_ = performRequestWithBody(router, "POST", "/user/signup", body)
+				response = performRequestWithBody(router, "POST", "/user/signup", body)
+			})
+
+			It("Refuse add the same user twice", func() {
+				Expect(response.Code).To(Equal(400))
+			})
+		})
+
+		Describe("Signin API at /user/signin", func() {
+			BeforeEach(func() {
+				// sign up a user
+				user := User{Username: "user1", Password: "password1", Email: "www"}
+				ujson, _ := json.Marshal(user)
+				body := bytes.NewReader(ujson)
+				_ = performRequestWithBody(router, "POST", "/user/signup", body)
+				// sign in
+				cred := Credentials{Password: "password1", Username: "user1"}
+				cjson, _ := json.Marshal(cred)
+				body = bytes.NewReader(cjson)
+				response = performRequestWithBody(router, "POST", "/user/login", body)
+				println(string(response.Body.Bytes()))
+			})
+
+			It("Ok!", func() {
+				Expect(response.Code).To(Equal(200))
+			})
+		})
+
+		Describe("Signin API at /signin with wrong pwd", func() {
+			BeforeEach(func() {
+				// sign up a user
+				user := User{Username: "user1", Password: "password11", Email: "www"}
+				ujson, _ := json.Marshal(user)
+				body := bytes.NewReader(ujson)
+				_ = performRequestWithBody(router, "POST", "/user/signup", body)
+				// sign in
+				cred := Credentials{Password: "password1", Username: "user1"}
+				cjson, _ := json.Marshal(cred)
+				body = bytes.NewReader(cjson)
+				response = performRequestWithBody(router, "POST", "/user/login", body)
+				println(string(response.Body.Bytes()))
+			})
+
+			It("No!", func() {
+				Expect(response.Code).To(Equal(401))
+			})
+		})
+
+		Describe("Signin API at /signin with no user", func() {
+			BeforeEach(func() {
+				// sign in
+				cred := Credentials{Password: "password1", Username: "user1"}
+				cjson, _ := json.Marshal(cred)
+				body := bytes.NewReader(cjson)
+				response = performRequestWithBody(router, "POST", "/user/login", body)
+				println(string(response.Body.Bytes()))
+			})
+
+			It("No such user!", func() {
+				Expect(response.Code).To(Equal(401))
+			})
+		})
+
+		Describe("Welcome API at /user/welcome", func() {
+			BeforeEach(func() {
+				// sign up a user
+				user := User{Username: "user1", Password: "password1", Email: "www"}
+				ujson, _ := json.Marshal(user)
+				body := bytes.NewReader(ujson)
+				_ = performRequestWithBody(router, "POST", "/user/signup", body)
+				// sign in
+				cred := Credentials{Password: "password1", Username: "user1"}
+				cjson, _ := json.Marshal(cred)
+				body = bytes.NewReader(cjson)
+				response = performRequestWithBody(router, "POST", "/user/login", body)
+				// welcome
+				response = performRequestWithBodyAndHeader(router, "GET", "/user/welcome", nil,
+					"Cookie", response.Header().Get("Set-Cookie"))
+				println(string(response.Body.Bytes()))
+			})
+
+			It("Ok!", func() {
+				Expect(response.Code).To(Equal(200))
+			})
+		})
+
+		Describe("Welcome API at /welcome without cookie", func() {
+			BeforeEach(func() {
+				// welcome
+				response = performRequestWithBodyAndHeader(router, "GET", "/user/welcome", nil,
+					"Cookie", response.Header().Get("Set-Cookie"))
+				println(string(response.Body.Bytes()))
+			})
+
+			It("No cookie!", func() {
+				Expect(response.Code).To(Equal(401))
+			})
+		})
+
+		Describe("Refresh API at /welcome", func() {
+			BeforeEach(func() {
+				// sign up a user
+				user := User{Username: "user1", Password: "password1", Email: "www"}
+				ujson, _ := json.Marshal(user)
+				body := bytes.NewReader(ujson)
+				_ = performRequestWithBody(router, "POST", "/user/signup", body)
+				// sign in
+				cred := Credentials{Password: "password1", Username: "user1"}
+				cjson, _ := json.Marshal(cred)
+				body = bytes.NewReader(cjson)
+				response = performRequestWithBody(router, "POST", "/user/login", body)
+				// welcome
+				response = performRequestWithBodyAndHeader(router, "POST", "/user/refresh", nil,
+					"Cookie", response.Header().Get("Set-Cookie"))
+				println(string(response.Body.Bytes()))
+			})
+
+			It("A new token will only be issued if the old token is within 30 seconds of expiry!", func() {
+				Expect(response.Code).To(Equal(400))
+			})
+		})
+
+		Describe("Getuser API at /user", func() {
+			var user User
+			BeforeEach(func() {
+				// sign up a user
+				user = User{Username: "user1", Password: "password1", Email: "www"}
+				ujson, _ := json.Marshal(user)
+				body := bytes.NewReader(ujson)
+				_ = performRequestWithBody(router, "POST", "/user/signup", body)
+				// sign in
+				cred := Credentials{Password: "password1", Username: "user1"}
+				cjson, _ := json.Marshal(cred)
+				body = bytes.NewReader(cjson)
+				response = performRequestWithBody(router, "POST", "/user/login", body)
+				// welcome
+				response = performRequestWithBodyAndHeader(router, "GET", "/user", nil,
+					"Cookie", response.Header().Get("Set-Cookie"))
+			})
+
+			It("Ok!", func() {
 				Expect(response.Code).To(Equal(200))
 			})
 
-			It("Returns the String 'This is indeed a landing page'", func() {
-				Expect(response.Body.String()).To(Equal("This is indeed a landing page"))
+			It("Return the user", func() {
+				var actualUser User
+				json.Unmarshal(response.Body.Bytes(), &actualUser)
+				Expect(actualUser.Username).To(Equal(user.Username))
 			})
 		})
 	})
