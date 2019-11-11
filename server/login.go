@@ -177,6 +177,7 @@ func Refresh(c *gin.Context) {
 	}
 
 	c.SetCookie("token", tokenString, expirationTime.Second(), "/", "", true, false)
+	c.String(http.StatusOK, "Refresh a new token!")
 	return
 }
 
@@ -222,13 +223,29 @@ func checkLogin(c *gin.Context) (*Claims, error) {
 	return claims, err
 }
 
-// func checkName(c *gin.Context) {
-// 	claims, err := checkLogin(c)
-// 	if err != nil {
-// 		return
-// 	}
+// checkName checks the login stage and
+// if the username outer handler gets is the same as the one in cookie
+// usage:
+// ok, err := checkName(c, username)
+// if err != nil {
+//// handle internal error of jwt
+// c.String(http.StatusInternalServerError, err.Error())
+// return
+//}
+// if !ok {
+//// username not match
+// c.String(http.StatusBadRequest, "User name not match!")
+//}
+func checkName(c *gin.Context, username string) (bool, error) {
+	claims, err := checkLogin(c)
+	if err != nil {
+		return false, err
+	} else if claims.Username != username {
+		return false, nil
+	}
+	return true, nil
+}
 
-// }
 // LoginCheckWrapper adds login check to a handler
 // usage: LoginCheckWrapper(handler)
 // func LoginCheckWrapper(fn gin.HandlerFunc) gin.HandlerFunc {
