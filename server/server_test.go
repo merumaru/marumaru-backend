@@ -63,12 +63,12 @@ var _ = Describe("Server", func() {
 			// drop the table
 			collection.Drop(ctx)
 		})
-		Describe("register API at /user/signup", func() {
+		Describe("register API at /users/signup", func() {
 			BeforeEach(func() {
 				user := User{Username: "user1", Password: "password1", Email: "www"}
 				ujson, _ := json.Marshal(user)
 				body := bytes.NewReader(ujson)
-				response = performRequestWithBody(router, "POST", "/user/signup", body)
+				response = performRequestWithBody(router, "POST", "/users/signup", body)
 			})
 
 			It("Add a user", func() {
@@ -83,12 +83,12 @@ var _ = Describe("Server", func() {
 			})
 		})
 
-		Describe("register API at /user/signup", func() {
+		Describe("register API at /users/signup", func() {
 			BeforeEach(func() {
 				user := User{Username: "user1", Password: "password1", Email: ""}
 				ujson, _ := json.Marshal(user)
 				body := bytes.NewReader(ujson)
-				response = performRequestWithBody(router, "POST", "/user/signup", body)
+				response = performRequestWithBody(router, "POST", "/users/signup", body)
 			})
 
 			It("Add a invalid user", func() {
@@ -96,13 +96,13 @@ var _ = Describe("Server", func() {
 			})
 		})
 
-		Describe("register API at /user/signup", func() {
+		Describe("register API at /users/signup", func() {
 			BeforeEach(func() {
 				user := User{Username: "user1", Password: "password1", Email: ""}
 				ujson, _ := json.Marshal(user)
 				body := bytes.NewReader(ujson)
-				_ = performRequestWithBody(router, "POST", "/user/signup", body)
-				response = performRequestWithBody(router, "POST", "/user/signup", body)
+				_ = performRequestWithBody(router, "POST", "/users/signup", body)
+				response = performRequestWithBody(router, "POST", "/users/signup", body)
 			})
 
 			It("Refuse add the same user twice", func() {
@@ -110,18 +110,18 @@ var _ = Describe("Server", func() {
 			})
 		})
 
-		Describe("Signin API at /user/signin", func() {
+		Describe("Signin API at /users/signin", func() {
 			BeforeEach(func() {
 				// sign up a user
 				user := User{Username: "user1", Password: "password1", Email: "www"}
 				ujson, _ := json.Marshal(user)
 				body := bytes.NewReader(ujson)
-				_ = performRequestWithBody(router, "POST", "/user/signup", body)
+				_ = performRequestWithBody(router, "POST", "/users/signup", body)
 				// sign in
 				cred := Credentials{Password: "password1", Username: "user1"}
 				cjson, _ := json.Marshal(cred)
 				body = bytes.NewReader(cjson)
-				response = performRequestWithBody(router, "POST", "/user/login", body)
+				response = performRequestWithBody(router, "POST", "/users/login", body)
 				println(string(response.Body.Bytes()))
 			})
 
@@ -136,12 +136,12 @@ var _ = Describe("Server", func() {
 				user := User{Username: "user1", Password: "password11", Email: "www"}
 				ujson, _ := json.Marshal(user)
 				body := bytes.NewReader(ujson)
-				_ = performRequestWithBody(router, "POST", "/user/signup", body)
+				_ = performRequestWithBody(router, "POST", "/users/signup", body)
 				// sign in
 				cred := Credentials{Password: "password1", Username: "user1"}
 				cjson, _ := json.Marshal(cred)
 				body = bytes.NewReader(cjson)
-				response = performRequestWithBody(router, "POST", "/user/login", body)
+				response = performRequestWithBody(router, "POST", "/users/login", body)
 				println(string(response.Body.Bytes()))
 			})
 
@@ -156,7 +156,7 @@ var _ = Describe("Server", func() {
 				cred := Credentials{Password: "password1", Username: "user1"}
 				cjson, _ := json.Marshal(cred)
 				body := bytes.NewReader(cjson)
-				response = performRequestWithBody(router, "POST", "/user/login", body)
+				response = performRequestWithBody(router, "POST", "/users/login", body)
 				println(string(response.Body.Bytes()))
 			})
 
@@ -165,20 +165,20 @@ var _ = Describe("Server", func() {
 			})
 		})
 
-		Describe("Welcome API at /user/welcome", func() {
+		Describe("Welcome API at /users/welcome", func() {
 			BeforeEach(func() {
 				// sign up a user
 				user := User{Username: "user1", Password: "password1", Email: "www"}
 				ujson, _ := json.Marshal(user)
 				body := bytes.NewReader(ujson)
-				_ = performRequestWithBody(router, "POST", "/user/signup", body)
+				_ = performRequestWithBody(router, "POST", "/users/signup", body)
 				// sign in
 				cred := Credentials{Password: "password1", Username: "user1"}
 				cjson, _ := json.Marshal(cred)
 				body = bytes.NewReader(cjson)
-				response = performRequestWithBody(router, "POST", "/user/login", body)
+				response = performRequestWithBody(router, "POST", "/users/login", body)
 				// welcome
-				response = performRequestWithBodyAndHeader(router, "GET", "/user/welcome", nil,
+				response = performRequestWithBodyAndHeader(router, "GET", "/users/welcome", nil,
 					"Cookie", response.Header().Get("Set-Cookie"))
 				println(string(response.Body.Bytes()))
 			})
@@ -191,7 +191,7 @@ var _ = Describe("Server", func() {
 		Describe("Welcome API at /welcome without cookie", func() {
 			BeforeEach(func() {
 				// welcome
-				response = performRequestWithBodyAndHeader(router, "GET", "/user/welcome", nil,
+				response = performRequestWithBodyAndHeader(router, "GET", "/users/welcome", nil,
 					"Cookie", response.Header().Get("Set-Cookie"))
 				println(string(response.Body.Bytes()))
 			})
@@ -207,14 +207,14 @@ var _ = Describe("Server", func() {
 				user := User{Username: "user1", Password: "password1", Email: "www"}
 				ujson, _ := json.Marshal(user)
 				body := bytes.NewReader(ujson)
-				_ = performRequestWithBody(router, "POST", "/user/signup", body)
+				_ = performRequestWithBody(router, "POST", "/users/signup", body)
 				// sign in
 				cred := Credentials{Password: "password1", Username: "user1"}
 				cjson, _ := json.Marshal(cred)
 				body = bytes.NewReader(cjson)
-				response = performRequestWithBody(router, "POST", "/user/login", body)
+				response = performRequestWithBody(router, "POST", "/users/login", body)
 				// welcome
-				response = performRequestWithBodyAndHeader(router, "POST", "/user/refresh", nil,
+				response = performRequestWithBodyAndHeader(router, "POST", "/users/refresh", nil,
 					"Cookie", response.Header().Get("Set-Cookie"))
 				println(string(response.Body.Bytes()))
 			})
@@ -224,21 +224,21 @@ var _ = Describe("Server", func() {
 			})
 		})
 
-		Describe("Getuser API at /user", func() {
+		Describe("Getuser API at /users", func() {
 			var user User
 			BeforeEach(func() {
 				// sign up a user
 				user = User{Username: "user1", Password: "password1", Email: "www"}
 				ujson, _ := json.Marshal(user)
 				body := bytes.NewReader(ujson)
-				_ = performRequestWithBody(router, "POST", "/user/signup", body)
+				_ = performRequestWithBody(router, "POST", "/users/signup", body)
 				// sign in
 				cred := Credentials{Password: "password1", Username: "user1"}
 				cjson, _ := json.Marshal(cred)
 				body = bytes.NewReader(cjson)
-				response = performRequestWithBody(router, "POST", "/user/login", body)
+				response = performRequestWithBody(router, "POST", "/users/login", body)
 				// welcome
-				response = performRequestWithBodyAndHeader(router, "GET", "/user", nil,
+				response = performRequestWithBodyAndHeader(router, "GET", "/users", nil,
 					"Cookie", response.Header().Get("Set-Cookie"))
 			})
 
@@ -253,4 +253,21 @@ var _ = Describe("Server", func() {
 			})
 		})
 	})
+
+	// Describe("product API", func() {
+	// 	var (
+	// 		collection *mongo.Collection
+	// 	)
+	// 	BeforeEach(func() {
+	// 		collection = client.Database("testing").Collection("users")
+	// 		ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
+	// 		// drop the table
+	// 		collection.Drop(ctx)
+	// 	})
+	// 	Describe("addProductHandler API", func ()  {
+	// 		BeforeEach(func() {
+
+	// 		})
+	// 	})
+	// })
 })

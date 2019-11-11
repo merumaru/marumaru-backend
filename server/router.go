@@ -13,22 +13,21 @@ func setupRoutes(router *gin.Engine) {
 	router.GET("/list", attachDB(client, listPage))
 
 	router.GET("/products", attachDB(client, getAllProductsHandler))
-	router.GET("/product/:id", attachDB(client, getProductByIDHandler))
-	router.GET("/product-user/:id", attachDB(client, getProductByUserIDHandler))
-	router.GET("/order-user/:id", attachDB(client, getOrderByUserIDHandler))
-	router.GET("/order-product/:id", attachDB(client, getOrderByProductIDHandler))
-	router.GET("/order/:id", attachDB(client, getOrderByIDHandler))
+	router.GET("/products/:id", attachDB(client, getProductByIDHandler))
+	router.GET("/products-user/:id", attachDB(client, getProductByUserIDHandler))
 	router.POST("/products", attachDB(client, addProductHandler))
-	router.POST("/orders", attachDB(client, addOrderHandler))
-
-	router.POST("/user/login", attachDB(client, Signin))
-	router.GET("/user/welcome", Welcome)
-	router.POST("/user/refresh", Refresh)
-	router.POST("/user/signup", attachDB(client, SignUp))
-	router.GET("/user", attachDB(client, GetUserByCookie))
-
 	router.POST("/products/:id/rent", attachDB(client, rentProductHandler))
-	router.PATCH("/edit/:id", attachDB(client, editProductHandler))
+	router.PATCH("/products/:id/edit", attachDB(client, editProductHandler))
+
+	router.POST("/orders", attachDB(client, addOrderHandler))
+	router.GET("/orders-user/:id", attachDB(client, getOrderByUserIDHandler))
+	router.GET("/orders/:id", attachDB(client, getOrderByIDHandler))
+
+	router.POST("/users/login", attachDB(client, Signin))
+	router.GET("/users/welcome", Welcome)
+	router.POST("/users/refresh", Refresh)
+	router.POST("/users/signup", attachDB(client, SignUp))
+	router.GET("/users", attachDB(client, GetUserByCookie))
 }
 
 func attachDB(client *mongo.Client, fn func(*gin.Context, *mongo.Client)) gin.HandlerFunc {
