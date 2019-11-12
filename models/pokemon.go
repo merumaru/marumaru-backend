@@ -36,3 +36,7 @@ type Product struct {
 	TimeDuration
 	Tags []string
 }
+
+type Recommendation struct {
+	ProductList []string
+}
