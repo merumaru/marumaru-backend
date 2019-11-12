@@ -109,7 +109,7 @@ func Signin(c *gin.Context, client *mongo.Client) {
 	// 	Value:   tokenString,
 	// 	Expires: expirationTime,
 	// })
-	c.SetCookie("token", tokenString, expirationTime.Second(), "/", "", true, false)
+	c.SetCookie("token", tokenString, expirationTime.Second(), "/", "", false, false)
 	c.String(http.StatusOK, "Set cookie successfully!")
 	return
 }
@@ -183,7 +183,7 @@ func Refresh(c *gin.Context) {
 		return
 	}
 
-	c.SetCookie("token", tokenString, expirationTime.Second(), "/", "", true, false)
+	c.SetCookie("token", tokenString, expirationTime.Second(), "/", "", false, false)
 	c.String(http.StatusOK, "Refresh a new token!")
 	return
 }
