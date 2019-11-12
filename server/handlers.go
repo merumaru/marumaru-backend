@@ -175,11 +175,11 @@ func editProductHandler(c *gin.Context, client *mongo.Client) {
 }
 
 func cancelProductHandler(c *gin.Context, client *mongo.Client) {
-	
+
 	id := c.Param("id")
 	claims, _ := checkLogin(c)
 	userID := claims.Username
-	
+
 	if data.Cancel1(client, string(userID), string(id)) != nil {
 		c.String(500, "Cancelation failed.")
 		return
@@ -190,4 +190,15 @@ func cancelProductHandler(c *gin.Context, client *mongo.Client) {
 		return
 	}
 	c.String(200, "finished")
+}
+
+func getRecommendationsHandler(c *gin.Context, client *mongo.Client) {
+
+	id := c.Param("id")
+	results, err := data.GetRecommendations(client, string(id))
+	if err != nil {
+		c.String(500, "Get Recommendations failed.")
+		return
+	}
+	c.JSON(200, results)
 }
