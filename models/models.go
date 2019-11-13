@@ -18,12 +18,12 @@ type TimeDuration struct {
 }
 
 type Order struct {
-	ID         primitive.ObjectID `bson:"_id, omitempty"`
-	SellerName string
-	BuyerName  string
-	ProductID  primitive.ObjectID
-	TimeDuration
-	IsCancelled bool
+	ID         primitive.ObjectID	`bson:"_id, omitempty"`
+	SellerID string					`json:"sellerID"`
+	BuyerID  string					`json:"buyerID"`
+	ProductID  string				`json:"productID"`
+	TimeDuration					`json:"timeduration"`
+	IsCancelled bool				`json:"iscancelled"`
 }
 
 type Product struct {
