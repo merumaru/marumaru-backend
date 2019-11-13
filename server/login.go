@@ -4,12 +4,14 @@ import (
 	"fmt"
 	"net/http"
 	"time"
+	"errors"
 
 	"context"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"github.com/merumaru/marumaru-backend/cfg"
+	models "github.com/merumaru/marumaru-backend/models"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
@@ -22,68 +24,49 @@ var jwtKey = []byte("my_secret_key")
 // Create handler which needs db client
 type HandlerFuncWithDB func(*gin.Context, *mongo.Client)
 
-// Suppose users just here, add database later
-// var users = map[string]string{
-// 	"user1": "password1",
-// 	"user2": "password2",
-// }
-
-type User struct {
-	ID          primitive.ObjectID `bson:"_id, omitempty"`
-	Username    string             `json:"username"`
-	Password    string             `json:"password"`
-	Email       string             `json:"email"`
-	Address     string             `json:"address"`
-	PhoneNumber string             `json:"phonenumber"`
-}
-
-type Claims struct {
-	Username string `json:"username"`
-	jwt.StandardClaims
-}
-
-// Create a struct to read the username and password from the request body
-type Credentials struct {
-	Password string `json:"password"`
-	Username string `json:"username"`
-}
-
-// Signin add a user cookie
-func Signin(c *gin.Context, client *mongo.Client) {
-	var creds Credentials
-	if err := c.BindJSON(&creds); err != nil {
-		c.String(400, err.Error())
-		return
-	}
-
-	collection := client.Database(cfg.DatabaseName).Collection(cfg.UserCollectionn)
-	filter := bson.M{"username": creds.Username}
-	result := User{}
+func checkForUser(filter bson.M, client *mongo.Client, username string) (int, string, models.User) {
+	collection := client.Database(cfg.DatabaseName).Collection(cfg.UserCollection)
+	result := models.User{}
 	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
 	err := collection.FindOne(ctx, filter).Decode(&result)
 	if err != nil {
 		// No result
 		if err == mongo.ErrNoDocuments {
-			c.String(http.StatusUnauthorized, fmt.Sprintf("No such user name %s!", creds.Username))
-			return
+			return http.StatusNotFound, fmt.Sprintf("No such user name %s!", username), result
 		} else {
 			// Other problem
-			c.String(http.StatusInternalServerError, err.Error())
-			return
+			return http.StatusInternalServerError, err.Error(), result
 		}
+	}
+	return http.StatusOK, "", result
+}
+
+// Signin add a user cookie
+func Signin(c *gin.Context, client *mongo.Client) {
+	var creds models.Credentials
+	if err := c.BindJSON(&creds); err != nil {
+		c.String(400, err.Error())
+		return
+	}
+
+	filter := bson.M{"username": creds.Username}
+	status, msg, result := checkForUser(filter, client, creds.Username)
+	if status != http.StatusOK {
+		c.String(status, msg)
+		return
 	}
 	// expectedPassword, ok := users[creds.Username]
 	// Check password
 	if result.Password != creds.Password {
-		c.String(http.StatusUnauthorized, "Password is incorrected!")
+		c.String(http.StatusUnauthorized, "Password is incorrect!")
 		return
 	}
 
 	// Declare the expiration time of the token
-	// here, we have kept it as 5 minutes
-	expirationTime := time.Now().Add(5 * time.Minute)
+	// here, we have kept it as 10 minutes
+	expirationTime := time.Now().Add(10 * time.Minute)
 	// Create the JWT claims, which includes the username and expiry time
-	claims := &Claims{
+	claims := &models.Claims{
 		Username: creds.Username,
 		StandardClaims: jwt.StandardClaims{
 			// In JWT, the expiry time is expressed as unix milliseconds
@@ -110,13 +93,13 @@ func Signin(c *gin.Context, client *mongo.Client) {
 	// 	Expires: expirationTime,
 	// })
 	c.SetCookie("token", tokenString, expirationTime.Second(), "/", "", false, false)
-	c.String(http.StatusOK, "Set cookie successfully!")
+	c.JSON(http.StatusOK, gin.H{"message": "Set cookie successfully", "info": result.ID.Hex()})
 	return
 }
 
 // Signup adds a new user
 func SignUp(c *gin.Context, client *mongo.Client) {
-	var user User
+	var user models.User
 	if err := c.BindJSON(&user); err != nil {
 		c.String(400, err.Error())
 		return
@@ -126,9 +109,9 @@ func SignUp(c *gin.Context, client *mongo.Client) {
 		c.String(400, "Invalid input")
 		return
 	}
-	collection := client.Database(cfg.DatabaseName).Collection(cfg.UserCollectionn)
+	collection := client.Database(cfg.DatabaseName).Collection(cfg.UserCollection)
 	filter := bson.M{"username": user.Username}
-	result := User{}
+	result := models.User{}
 	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
 	err := collection.FindOne(ctx, filter).Decode(&result)
 	if err == nil {
@@ -195,14 +178,14 @@ func GetUserByCookie(c *gin.Context, client *mongo.Client) {
 		c.String(http.StatusInternalServerError, err.Error())
 		return
 	}
-	collection := client.Database(cfg.DatabaseName).Collection(cfg.UserCollectionn)
+	collection := client.Database(cfg.DatabaseName).Collection(cfg.UserCollection)
 	filter := bson.M{"username": claims.Username}
-	result := User{}
+	result := models.User{}
 	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
 	err = collection.FindOne(ctx, filter).Decode(&result)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
-			c.String(http.StatusBadRequest, "User not found")
+			c.String(http.StatusBadRequest, "models.User not found")
 			return
 		}
 		c.String(http.StatusInternalServerError, err.Error())
@@ -215,10 +198,30 @@ func GetUserByCookie(c *gin.Context, client *mongo.Client) {
 
 // Check login or not
 // Return a claim with username
-func checkLogin(c *gin.Context) (*Claims, error) {
+func checkLogin_(c *gin.Context, client *mongo.Client) error {
+	userID := c.Param("userID")
+	// buf := make([]byte, 1024)
+	// num, _ := c.Request.Body.Read(buf)
+	// reqBody := string(buf[0:num])
+	// fmt.Println(reqBody)
+	// fmt.Println("id received", userID)
+	return nil
+	if userID == "" {
+		return errors.New("You need to create an account before doing that!")
+	}
+	filter := bson.M{"_id": userID}
+	status, msg, _ := checkForUser(filter, client, userID)
+	fmt.Println(status)
+	if status != http.StatusOK {
+		return errors.New(msg)
+	}
+	return nil
+}
+
+func checkLogin(c *gin.Context) (*models.Claims, error) {
 	t, err := c.Cookie("token")
-	// Initialize a new instance of `Claims`
-	claims := &Claims{}
+	// Initialize a new instance of `models.Claims`
+	claims := &models.Claims{}
 
 	if err != nil {
 		if err == http.ErrNoCookie {
@@ -267,7 +270,7 @@ func checkLogin(c *gin.Context) (*Claims, error) {
 //}
 // if !ok {
 //// username not match
-// c.String(http.StatusBadRequest, "User name not match!")
+// c.String(http.StatusBadRequest, "models.User name not match!")
 //}
 func checkName(c *gin.Context, username string) (bool, error) {
 	claims, err := checkLogin(c)

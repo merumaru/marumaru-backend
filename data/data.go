@@ -170,3 +170,13 @@ func Cancel2(client *mongo.Client, userID string, id string) error {
 	return err
 }
 
+func GetUserByID(client *mongo.Client, id string) (*models.User, error) {
+	var result models.User
+	collection := client.Database(cfg.DatabaseName).Collection(cfg.UserCollection)
+	objID, _ := primitive.ObjectIDFromHex(id) // id is something like "5dc4c0b433f5f1b10da0c599"
+	filter := bson.D{{"_id", objID}}
+
+	err := collection.FindOne(context.TODO(), filter).Decode(&result)
+	fmt.Printf("Found a single document: %+v\n", result)
+	return &result, err
+}
