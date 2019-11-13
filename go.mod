@@ -13,7 +13,7 @@ require (
 	github.com/onsi/ginkgo v1.7.0
 	github.com/onsi/gomega v1.4.3
 	github.com/tidwall/pretty v1.0.0 // indirect
-	github.com/ugorji/go/codec v0.0.0-20190204201341-e444a5086c43
+	github.com/ugorji/go/codec v1.1.4
 	github.com/xdg/scram v0.0.0-20180814205039-7eeb5667e42c // indirect
 	github.com/xdg/stringprep v1.0.0 // indirect
 	go.mongodb.org/mongo-driver v1.1.3
