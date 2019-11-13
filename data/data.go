@@ -43,7 +43,7 @@ func GetProductByID(client *mongo.Client, id string) (*models.Product, error) {
 func GetProductByUserID(client *mongo.Client, id string) (*[]models.Product, error) {
 	var results []models.Product
 	collection := client.Database(cfg.DatabaseName).Collection(cfg.ProductCollection)
-	filter := bson.D{{"sellername", id}}
+	filter := bson.D{{"sellerid", id}}
 
 	cur, err := collection.Find(context.TODO(), filter)
 	for cur.Next(context.TODO()) {
@@ -88,9 +88,19 @@ func GetOrderByUserID(client *mongo.Client, id string) (*[]models.Order, error) 
 	var results []models.Order
 	collection := client.Database(cfg.DatabaseName).Collection(cfg.OrderCollection)
 
-	filter := bson.M{"$or": []bson.D{bson.D{{"sellername", id}}, bson.D{{"buyername", id}}}}
-
+	// filter := bson.M{"$or": []bson.D{bson.D{{"sellerID", id}}, bson.D{{"buyerID", id}}}}
+	filter := bson.D{{"sellerid", id}}
 	cur, err := collection.Find(context.TODO(), filter)
+	for cur.Next(context.TODO()) {
+		var tmp models.Order
+		err := cur.Decode(&tmp)
+		if err == nil {
+			results = append(results, tmp)
+		}
+	}
+
+	filter = bson.D{{"buyerid", id}}
+	cur, err = collection.Find(context.TODO(), filter)
 	for cur.Next(context.TODO()) {
 		var tmp models.Order
 		err := cur.Decode(&tmp)
@@ -127,11 +137,11 @@ func RentProduct(client *mongo.Client, productID string, buyerName string, start
 
 	err := collection.FindOne(context.TODO(), filter).Decode(&result)
 
-	id, _ := primitive.ObjectIDFromHex(productID)
+	// id, _ := primitive.ObjectIDFromHex(productID)
 	order := models.Order{
-		SellerName:   result.SellerID,
-		BuyerName:    buyerName,
-		ProductID:    id,
+		SellerID:   result.SellerID,
+		BuyerID:    buyerName,
+		ProductID:   productID,
 		TimeDuration: models.TimeDuration{Start: startDate, End: endDate},
 		IsCancelled:  false,
 	}

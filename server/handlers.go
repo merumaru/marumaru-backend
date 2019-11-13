@@ -82,25 +82,26 @@ func addProductHandler(c *gin.Context, client *mongo.Client) {
 }
 
 func addOrderHandler(c *gin.Context, client *mongo.Client) {
-	claims, err := checkLogin(c)
+	// claims, err := checkLogin(c)
+	err := checkLogin_(c, client)
 
 	if err != nil {
-		c.String(500, "Insertion failed.")
+		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error(), "info": ""})
 		return
 	}
 	var order models.Order
 	if err := c.BindJSON(&order); err != nil {
-		c.String(400, err.Error())
+		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error(), "info": ""})
 		return
 	}
 	order.ID = primitive.NewObjectID()
-	order.BuyerName = claims.Username
+	// order.BuyerName = claims.Username
 	err = data.AddOrder(client, &order)
 	if err != nil {
-		c.String(500, "Insertion failed.")
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to create product", "info": ""})
 		return
 	}
-	c.String(200, "finished")
+	c.JSON(http.StatusCreated, gin.H{"message": "Order created!", "info": order.ID})
 }
 
 func getProductByUserIDHandler(c *gin.Context, client *mongo.Client) {
@@ -201,7 +202,7 @@ func getUserByIDHandler(c *gin.Context, client *mongo.Client) {
 	result, err := data.GetUserByID(client, string(id))
 	fmt.Println(result)
 	if err != nil {
-		c.String(500, "Get User by ID failed.")
+		c.String(500, "Get User by ID failed." + err.Error())
 		return
 	}
 	c.JSON(200, result)
