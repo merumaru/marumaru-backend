@@ -1,8 +1,11 @@
 package data
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
+	"net/http"
 	"time"
 
 	"github.com/merumaru/marumaru-backend/cfg"
@@ -107,6 +110,10 @@ func AddOrder(client *mongo.Client, order *models.Order) error {
 
 func AddProduct(client *mongo.Client, product *models.Product) error {
 	collection := client.Database(cfg.DatabaseName).Collection(cfg.ProductCollection)
+
+	// add product to rec sys db
+	err := addProductToRecSysDB(product.ID.String(), product.Photos[0])
+
 	res, err := collection.InsertOne(context.TODO(), *product)
 	fmt.Println("%T", res.InsertedID)
 	return err
@@ -143,7 +150,6 @@ func Update(client *mongo.Client, product *models.Product, id string) error {
 	return err
 }
 
-
 func Cancel1(client *mongo.Client, userID string, id string) error {
 	t := time.Now()
 	collection := client.Database("test").Collection("orders")
@@ -153,7 +159,7 @@ func Cancel1(client *mongo.Client, userID string, id string) error {
 
 	filter := bson.M{"BuyerID": bson.M{"$eq": usrID}, "ProductID": bson.M{"$eq": objID}, "TimeDuration.Start": bson.M{"$gte": t}}
 	update := bson.M{"$set": bson.M{"IsCancelled": true}}
-	_,err := collection.UpdateMany(context.TODO(), filter, update)
+	_, err := collection.UpdateMany(context.TODO(), filter, update)
 	return err
 }
 
@@ -166,7 +172,19 @@ func Cancel2(client *mongo.Client, userID string, id string) error {
 
 	filter := bson.M{"SellerID": bson.M{"$eq": usrID}, "ProductID": bson.M{"$eq": objID}, "TimeDuration.Start": bson.M{"$gte": t}}
 	update := bson.M{"$set": bson.M{"IsCancelled": true}}
-	_,err := collection.UpdateMany(context.TODO(), filter, update)
+	_, err := collection.UpdateMany(context.TODO(), filter, update)
+	return err
+}
+
+func addProductToRecSysDB(productID string, imageURL string) error {
+	requestBody, _ := json.Marshal(map[string]string{
+		"url": imageURL,
+	})
+	resp, err := http.Post(fmt.Sprintf("http://34.83.27.35:5000/%s/addImage", productID), "application/json", bytes.NewBuffer(requestBody))
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
 	return err
 }
 
@@ -179,4 +197,26 @@ func GetUserByID(client *mongo.Client, id string) (*models.User, error) {
 	err := collection.FindOne(context.TODO(), filter).Decode(&result)
 	fmt.Printf("Found a single document: %+v\n", result)
 	return &result, err
+}
+
+func GetRecommendations(client *mongo.Client, productID string) (*[]models.Product, error) {
+	var results []models.Product
+	recommendation := new(models.Recommendation)
+
+	resp, err := http.Get(fmt.Sprintf("http://34.83.27.35:5000/%s/similarProducts", productID))
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	json.NewDecoder(resp.Body).Decode(recommendation)
+
+	for _, id := range recommendation.ProductList {
+		product, err := GetProductByID(client, id)
+		if err != nil {
+			return nil, err
+		}
+		results = append(results, *product)
+	}
+	return &results, err
 }

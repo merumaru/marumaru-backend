@@ -64,3 +64,7 @@ type Credentials struct {
 	Password string `json:"password"`
 	Username string `json:"username"`
 }
+
+type Recommendation struct {
+	ProductList []string
+}
