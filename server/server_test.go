@@ -11,6 +11,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	. "github.com/merumaru/marumaru-backend/server"
+	. "github.com/merumaru/marumaru-backend/models"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"go.mongodb.org/mongo-driver/bson"
@@ -161,7 +162,7 @@ var _ = Describe("Server", func() {
 			})
 
 			It("No such user!", func() {
-				Expect(response.Code).To(Equal(401))
+				Expect(response.Code).To(Equal(404))
 			})
 		})
 

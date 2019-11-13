@@ -11,12 +11,14 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/mongo"
+	"github.com/gin-contrib/cors"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 // CreateRouter creates and configures a server
 func CreateRouter() *gin.Engine {
 	router := gin.Default()
+	router.Use(cors.Default())
 	setupRoutes(router)
 	return router
 }

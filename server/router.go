@@ -29,6 +29,7 @@ func setupRoutes(router *gin.Engine) {
 	router.GET("/users/welcome", Welcome)
 	router.POST("/users/refresh", Refresh)
 	router.POST("/users/signup", attachDB(client, SignUp))
+	router.GET("/users/user/:id", attachDB(client, getUserByIDHandler))
 	router.GET("/users", attachDB(client, GetUserByCookie))
 }
 

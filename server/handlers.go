@@ -3,6 +3,7 @@ package server
 import (
 	"fmt"
 	"time"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/merumaru/marumaru-backend/data"
@@ -56,26 +57,28 @@ func getOrderByIDHandler(c *gin.Context, client *mongo.Client) {
 }
 
 func addProductHandler(c *gin.Context, client *mongo.Client) {
-	claims, err := checkLogin(c)
+	// claims, err := checkLogin(c)
+	fmt.Println(c.Request)
+
+	err := checkLogin_(c, client)
 	if err != nil {
-		c.String(500, "Insertion failed.")
+		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error(), "info": ""})
 		return
 	}
-
 	var product models.Product
 	if err := c.BindJSON(&product); err != nil {
-		c.String(400, err.Error())
+		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error(), "info": ""})
 		return
 	}
 	// automatically assign an ID
 	product.ID = primitive.NewObjectID()
-	product.SellerID = claims.Username
+	// product.SellerID = claims.Username
 	err = data.AddProduct(client, &product)
 	if err != nil {
-		c.String(500, "Insertion failed.")
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to create product", "info": ""})
 		return
 	}
-	c.String(200, "finished")
+	c.JSON(http.StatusCreated, gin.H{"message": "Product created!", "info": product.ID})
 }
 
 func addOrderHandler(c *gin.Context, client *mongo.Client) {
@@ -192,6 +195,18 @@ func cancelProductHandler(c *gin.Context, client *mongo.Client) {
 	c.String(200, "finished")
 }
 
+
+func getUserByIDHandler(c *gin.Context, client *mongo.Client) {
+	id := c.Param("id")
+	result, err := data.GetUserByID(client, string(id))
+	fmt.Println(result)
+	if err != nil {
+		c.String(500, "Get User by ID failed.")
+		return
+	}
+	c.JSON(200, result)
+}
+
 func getRecommendationsHandler(c *gin.Context, client *mongo.Client) {
 
 	id := c.Param("id")
@@ -202,3 +217,4 @@ func getRecommendationsHandler(c *gin.Context, client *mongo.Client) {
 	}
 	c.JSON(200, results)
 }
+

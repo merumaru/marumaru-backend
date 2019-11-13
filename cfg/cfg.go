@@ -4,5 +4,5 @@ const (
 	DatabaseName      = "testing"
 	ProductCollection = "products"
 	OrderCollection   = "orders"
-	UserCollectionn   = "users"
+	UserCollection   = "users"
 )
