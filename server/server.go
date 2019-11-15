@@ -9,9 +9,9 @@ import (
 	"os/signal"
 	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/mongo"
-	"github.com/gin-contrib/cors"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
@@ -35,7 +35,7 @@ func CreateRouter() *gin.Engine {
 // StartServer starts given server, supporting graceful shutdown of the server
 func StartServer(router *gin.Engine) {
 	srv := &http.Server{
-		Addr:    ":8080",
+		Addr:    ":8081",
 		Handler: router,
 	}
 
