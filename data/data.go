@@ -139,9 +139,9 @@ func RentProduct(client *mongo.Client, productID string, buyerName string, start
 
 	// id, _ := primitive.ObjectIDFromHex(productID)
 	order := models.Order{
-		SellerID:   result.SellerID,
-		BuyerID:    buyerName,
-		ProductID:   productID,
+		SellerID:     result.SellerID,
+		BuyerID:      buyerName,
+		ProductID:    productID,
 		TimeDuration: models.TimeDuration{Start: startDate, End: endDate},
 		IsCancelled:  false,
 	}
@@ -160,27 +160,20 @@ func Update(client *mongo.Client, product *models.Product, id string) error {
 	return err
 }
 
-func Cancel1(client *mongo.Client, userID string, id string) error {
+func CancelOrder(client *mongo.Client, userID string, id string, whoCancelled bool) error {
+	// 0 --> Buyer, 1--> Seller cancelled
 	t := time.Now()
 	collection := client.Database("test").Collection("orders")
 	usrID, _ := primitive.ObjectIDFromHex(userID)
 
 	objID, _ := primitive.ObjectIDFromHex(id)
 
-	filter := bson.M{"BuyerID": bson.M{"$eq": usrID}, "ProductID": bson.M{"$eq": objID}, "TimeDuration.Start": bson.M{"$gte": t}}
-	update := bson.M{"$set": bson.M{"IsCancelled": true}}
-	_, err := collection.UpdateMany(context.TODO(), filter, update)
-	return err
-}
-
-func Cancel2(client *mongo.Client, userID string, id string) error {
-	t := time.Now()
-	collection := client.Database("test").Collection("orders")
-	usrID, _ := primitive.ObjectIDFromHex(userID)
-
-	objID, _ := primitive.ObjectIDFromHex(id)
-
-	filter := bson.M{"SellerID": bson.M{"$eq": usrID}, "ProductID": bson.M{"$eq": objID}, "TimeDuration.Start": bson.M{"$gte": t}}
+	var filter bson.M
+	if whoCancelled == false {
+		filter = bson.M{"BuyerID": bson.M{"$eq": usrID}, "ProductID": bson.M{"$eq": objID}, "TimeDuration.Start": bson.M{"$gte": t}}
+	} else {
+		filter = bson.M{"SellerID": bson.M{"$eq": usrID}, "ProductID": bson.M{"$eq": objID}, "TimeDuration.Start": bson.M{"$gte": t}}
+	}
 	update := bson.M{"$set": bson.M{"IsCancelled": true}}
 	_, err := collection.UpdateMany(context.TODO(), filter, update)
 	return err
