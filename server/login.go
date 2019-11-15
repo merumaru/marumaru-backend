@@ -18,6 +18,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
+// TODO: what is this
 // Create the JWT key used to create the signature
 var jwtKey = []byte("my_secret_key")
 

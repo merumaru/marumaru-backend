@@ -181,15 +181,11 @@ func cancelProductHandler(c *gin.Context, client *mongo.Client) {
 	claims, _ := checkLogin(c)
 	userID := claims.Username
 
-	if data.Cancel1(client, string(userID), string(id)) != nil { // TODO: rename function here
+	if data.CancelOrder(client, string(userID), string(id)) != nil {
 		c.String(500, "Cancelation failed.")
 		return
 	}
 
-	if data.Cancel2(client, string(userID), string(id)) != nil { // TODO: rename function here
-		c.String(500, "Cancelation failed.")
-		return
-	}
 	c.String(200, "Product removed.")
 }
 
