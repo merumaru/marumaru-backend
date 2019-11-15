@@ -196,6 +196,8 @@ func getUserByCookie(c *gin.Context, client *mongo.Client) {
 	return
 }
 
+// TODO: remove one check login function here, and in handlers.go
+
 // Check login or not
 // Return a claim with username
 func checkLogin_(c *gin.Context, client *mongo.Client) error {

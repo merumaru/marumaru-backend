@@ -8,8 +8,8 @@ import (
 func setupRoutes(router *gin.Engine) {
 	dbClient := Connect2DB()
 	router.GET("/", hello)
-	router.GET("/login", loginPage)
-	router.GET("/list", attachDB(dbClient, listPage))
+	router.GET("/login", loginPage)                   // TODO: not used
+	router.GET("/list", attachDB(dbClient, listPage)) // TODO: not used
 
 	router.GET("/products", attachDB(dbClient, getAllProductsHandler))
 	router.GET("/products/:id", attachDB(dbClient, getProductByIDHandler))
@@ -17,7 +17,6 @@ func setupRoutes(router *gin.Engine) {
 	router.POST("/products/:id/rent", attachDB(dbClient, rentProductHandler))
 	router.PATCH("/products/:id/edit", attachDB(dbClient, editProductHandler))
 	router.PATCH("/products/:id/cancel", attachDB(dbClient, cancelProductHandler))
-	router.PATCH("/products/:id/recommendations", attachDB(dbClient, getRecommendationsHandler))
 
 	router.POST("/orders", attachDB(dbClient, addOrderHandler))
 	router.GET("/orders/:id", attachDB(dbClient, getOrderByIDHandler))
