@@ -14,12 +14,11 @@ all: deps build test clean
 build:
 		GO111MODULE=on CGO_ENABLED=0 $(GOBUILD) -o $(BINARY_NAME) cmd/marumaru-backend/marumaru-backend.go
 test:
-		$(GOTEST) -v ./...
+		$(GOTEST) -v ./server
 clean:
 		$(GOCLEAN)
-		rm -f $(BINARY_NAME)
+		rm -f ./$(BINARY_NAME)
 run:
 		$(GORUN) cmd/marumaru-backend/marumaru-backend.go
 deps:
 		$(GOMOD) download
-

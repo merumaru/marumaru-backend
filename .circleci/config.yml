@@ -52,10 +52,10 @@ jobs:
   #         command: kubectl rollout restart deployment/marumaru-backend-deployment
 
 workflows:
-  merauction:
+  marumaru:
     jobs:
       - build
-      # - test
+      - test
       # - deploy_master:
       #     requires:
       #       - build
