@@ -55,7 +55,7 @@ workflows:
   merauction:
     jobs:
       - build
-      # - test
+      - test
       # - deploy_master:
       #     requires:
       #       - build
