@@ -2,8 +2,8 @@ package server
 
 import (
 	"fmt"
-	"time"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/merumaru/marumaru-backend/data"
@@ -22,7 +22,6 @@ func loginPage(c *gin.Context) {
 
 func listPage(c *gin.Context, client *mongo.Client) {
 	c.String(200, "listPage")
-	// client.Database("test").Collection("product")
 }
 
 func getAllProductsHandler(c *gin.Context, client *mongo.Client) {
@@ -58,9 +57,7 @@ func getOrderByIDHandler(c *gin.Context, client *mongo.Client) {
 
 func addProductHandler(c *gin.Context, client *mongo.Client) {
 	// claims, err := checkLogin(c)
-	fmt.Println(c.Request)
-
-	err := checkLogin_(c, client)
+	err := checkLogin_(c, client) // TODO:
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error(), "info": ""})
 		return
@@ -72,7 +69,7 @@ func addProductHandler(c *gin.Context, client *mongo.Client) {
 	}
 	// automatically assign an ID
 	product.ID = primitive.NewObjectID()
-	// product.SellerID = claims.Username
+	// product.SellerID = claims.Username // TODO:
 	err = data.AddProduct(client, &product)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to create product", "info": ""})
@@ -82,8 +79,8 @@ func addProductHandler(c *gin.Context, client *mongo.Client) {
 }
 
 func addOrderHandler(c *gin.Context, client *mongo.Client) {
-	// claims, err := checkLogin(c)
-	err := checkLogin_(c, client)
+	// claims, err := checkLogin(c) // TODO: use this line
+	err := checkLogin_(c, client) // TODO:
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error(), "info": ""})
@@ -95,7 +92,7 @@ func addOrderHandler(c *gin.Context, client *mongo.Client) {
 		return
 	}
 	order.ID = primitive.NewObjectID()
-	// order.BuyerName = claims.Username
+	// order.BuyerName = claims.Username // TODO:
 	err = data.AddOrder(client, &order)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to create product", "info": ""})
@@ -158,7 +155,7 @@ func rentProductHandler(c *gin.Context, client *mongo.Client) {
 		c.String(500, "Rent failed.")
 		return
 	}
-	c.String(200, "product rented")
+	c.String(200, "Product rented.")
 }
 
 func editProductHandler(c *gin.Context, client *mongo.Client) {
@@ -175,7 +172,7 @@ func editProductHandler(c *gin.Context, client *mongo.Client) {
 		c.String(500, "Update failed.")
 		return
 	}
-	c.String(200, "finished")
+	c.String(200, "Product updated.")
 }
 
 func cancelProductHandler(c *gin.Context, client *mongo.Client) {
@@ -184,38 +181,22 @@ func cancelProductHandler(c *gin.Context, client *mongo.Client) {
 	claims, _ := checkLogin(c)
 	userID := claims.Username
 
-	if data.Cancel1(client, string(userID), string(id)) != nil {
+	if data.CancelOrder(client, string(userID), string(id), false) != nil ||
+		data.CancelOrder(client, string(userID), string(id), true) != nil {
 		c.String(500, "Cancelation failed.")
 		return
 	}
 
-	if data.Cancel2(client, string(userID), string(id)) != nil {
-		c.String(500, "Cancelation failed.")
-		return
-	}
-	c.String(200, "finished")
+	c.String(200, "Product removed.")
 }
-
 
 func getUserByIDHandler(c *gin.Context, client *mongo.Client) {
 	id := c.Param("id")
 	result, err := data.GetUserByID(client, string(id))
 	fmt.Println(result)
 	if err != nil {
-		c.String(500, "Get User by ID failed." + err.Error())
+		c.String(500, "Get User by ID failed. "+err.Error())
 		return
 	}
 	c.JSON(200, result)
 }
-
-func getRecommendationsHandler(c *gin.Context, client *mongo.Client) {
-
-	id := c.Param("id")
-	results, err := data.GetRecommendations(client, string(id))
-	if err != nil {
-		c.String(500, "Get Recommendations failed.")
-		return
-	}
-	c.JSON(200, results)
-}
-
