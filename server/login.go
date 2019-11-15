@@ -1,10 +1,10 @@
 package server
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"time"
-	"errors"
 
 	"context"
 
@@ -42,7 +42,7 @@ func checkForUser(filter bson.M, client *mongo.Client, username string) (int, st
 }
 
 // Signin add a user cookie
-func Signin(c *gin.Context, client *mongo.Client) {
+func signIn(c *gin.Context, client *mongo.Client) {
 	var creds models.Credentials
 	if err := c.BindJSON(&creds); err != nil {
 		c.String(400, err.Error())
@@ -98,7 +98,7 @@ func Signin(c *gin.Context, client *mongo.Client) {
 }
 
 // Signup adds a new user
-func SignUp(c *gin.Context, client *mongo.Client) {
+func signUp(c *gin.Context, client *mongo.Client) {
 	var user models.User
 	if err := c.BindJSON(&user); err != nil {
 		c.String(400, err.Error())
@@ -134,7 +134,7 @@ func SignUp(c *gin.Context, client *mongo.Client) {
 }
 
 // Welcome tests login
-func Welcome(c *gin.Context) {
+func welcome(c *gin.Context) {
 	claims, err := checkLogin(c)
 	if err != nil {
 		return
@@ -143,7 +143,7 @@ func Welcome(c *gin.Context) {
 }
 
 // Refresh the token in the background by the client application.
-func Refresh(c *gin.Context) {
+func refresh(c *gin.Context) {
 	claims, err := checkLogin(c)
 	if err != nil {
 		return
@@ -172,7 +172,7 @@ func Refresh(c *gin.Context) {
 }
 
 // GetUserByCookie returns the whole user struct by cookie
-func GetUserByCookie(c *gin.Context, client *mongo.Client) {
+func getUserByCookie(c *gin.Context, client *mongo.Client) {
 	claims, err := checkLogin(c)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())

@@ -2,8 +2,8 @@ package server
 
 import (
 	"fmt"
-	"time"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/merumaru/marumaru-backend/data"
@@ -196,13 +196,12 @@ func cancelProductHandler(c *gin.Context, client *mongo.Client) {
 	c.String(200, "finished")
 }
 
-
 func getUserByIDHandler(c *gin.Context, client *mongo.Client) {
 	id := c.Param("id")
 	result, err := data.GetUserByID(client, string(id))
 	fmt.Println(result)
 	if err != nil {
-		c.String(500, "Get User by ID failed." + err.Error())
+		c.String(500, "Get User by ID failed."+err.Error())
 		return
 	}
 	c.JSON(200, result)
@@ -218,4 +217,3 @@ func getRecommendationsHandler(c *gin.Context, client *mongo.Client) {
 	}
 	c.JSON(200, results)
 }
-
