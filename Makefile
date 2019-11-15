@@ -18,7 +18,6 @@ test:
 clean:
 		$(GOCLEAN)
 		rm -f $(BINARY_NAME)
-		rm -f $(BINARY_UNIX)
 run:
 		$(GORUN) cmd/marumaru-backend/marumaru-backend.go
 deps:
