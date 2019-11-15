@@ -5,9 +5,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func setupRoutes(router *gin.Engine) {
-	// v1 := router.Group("/api/v1")
-	client := Connect2DB()
+func setupRoutes(router *gin.Engine, databaseURL, databaseName string) {
+	client := Connect2DB(databaseURL)
 	router.GET("/", hello)
 	router.GET("/login", loginPage)
 	router.GET("/list", attachDB(client, listPage))
