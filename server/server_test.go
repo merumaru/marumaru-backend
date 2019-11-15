@@ -225,7 +225,7 @@ var _ = Describe("Server", func() {
 			})
 		})
 
-		Describe("Get user API at /cookie", func() {
+		Describe("Get user API at /usercookie", func() {
 			var user User
 			BeforeEach(func() {
 				// sign up a user
@@ -239,7 +239,7 @@ var _ = Describe("Server", func() {
 				body = bytes.NewReader(cjson)
 				response = performRequestWithBody(router, "POST", "/login", body)
 				// welcome
-				response = performRequestWithBodyAndHeader(router, "GET", "/cookie", nil,
+				response = performRequestWithBodyAndHeader(router, "GET", "/usercookie", nil,
 					"Cookie", response.Header().Get("Set-Cookie"))
 			})
 

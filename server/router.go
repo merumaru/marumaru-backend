@@ -29,7 +29,7 @@ func setupRoutes(router *gin.Engine) {
 	router.GET("/welcome", welcome)
 	router.POST("/refresh", refresh)
 	router.POST("/signup", attachDB(dbClient, signUp))
-	router.GET("/cookie", attachDB(dbClient, getUserByCookie))
+	router.GET("/usercookie", attachDB(dbClient, getUserByCookie))
 }
 
 func attachDB(client *mongo.Client, fn func(*gin.Context, *mongo.Client)) gin.HandlerFunc {
