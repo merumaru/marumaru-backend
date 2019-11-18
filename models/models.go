@@ -38,12 +38,6 @@ type Product struct {
 	Tags         []string `json:"tags"`
 }
 
-// Suppose users just here, add database later
-// var users = map[string]string{
-// 	"user1": "password1",
-// 	"user2": "password2",
-// }
-
 type User struct {
 	ID          primitive.ObjectID `bson:"_id, omitempty"`
 	Username    string             `json:"username"`
