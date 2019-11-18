@@ -49,9 +49,11 @@ var _ = Describe("Server", func() {
 	)
 
 	BeforeEach(func() {
-		router = CreateRouter()
+		dbURL := "mongodb://localhost:27017"
+		dbName := "testing"
+		router = CreateRouter(dbURL, dbName)
 		// StartServer(router)
-		client = Connect2DB()
+		client = Connect2DB(dbURL)
 	})
 
 	Describe("login API", func() {
