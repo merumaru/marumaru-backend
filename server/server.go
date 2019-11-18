@@ -16,7 +16,7 @@ import (
 )
 
 // CreateRouter creates and configures a server
-func CreateRouter() *gin.Engine {
+func CreateRouter(databaseURL, databaseName string) *gin.Engine {
 	router := gin.Default()
 	// router.Use(cors.Default())
 	router.Use(cors.New(cors.Config{
@@ -28,14 +28,14 @@ func CreateRouter() *gin.Engine {
 		AllowOriginFunc:  func(origin string) bool { return true },
 		MaxAge:           86400,
 	}))
-	setupRoutes(router)
+	setupRoutes(router, databaseURL, databaseName)
 	return router
 }
 
 // StartServer starts given server, supporting graceful shutdown of the server
 func StartServer(router *gin.Engine) {
 	srv := &http.Server{
-		Addr:    ":8081",
+		Addr:    ":8080",
 		Handler: router,
 	}
 
