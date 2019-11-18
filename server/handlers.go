@@ -25,6 +25,7 @@ func listPage(c *gin.Context, client *mongo.Client) {
 	c.String(200, "listPage")
 }
 
+// TODO:
 func getAllProductsHandler(c *gin.Context, client *mongo.Client) {
 	results, err := data.GetAllProducts(client)
 	if err != nil {
@@ -36,11 +37,13 @@ func getAllProductsHandler(c *gin.Context, client *mongo.Client) {
 	c.JSON(200, results)
 }
 
+// TODO:
 func getProductByIDHandler(c *gin.Context, client *mongo.Client) {
 	id := c.Param("id")
 	result, err := data.GetProductByID(client, string(id))
 	fmt.Println(result)
 	if err != nil {
+		log.Println(err)
 		c.String(500, "Get Product by ID failed.")
 		return
 	}
@@ -58,6 +61,7 @@ func getOrderByIDHandler(c *gin.Context, client *mongo.Client) {
 	c.JSON(200, result)
 }
 
+// TODO:
 func addProductHandler(c *gin.Context, client *mongo.Client) {
 	userCookie := getUserByCookie(c)
 	if userCookie == nil {
@@ -139,6 +143,7 @@ func getOrderByProductIDHandler(c *gin.Context, client *mongo.Client) {
 	c.JSON(200, results)
 }
 
+// TODO:
 func rentProductHandler(c *gin.Context, client *mongo.Client) {
 	userCookie := getUserByCookie(c)
 	if userCookie == nil {
@@ -146,8 +151,8 @@ func rentProductHandler(c *gin.Context, client *mongo.Client) {
 		return
 	}
 
-	var product models.Product
 	id := c.Param("id")
+	var product models.Product
 	if err := c.BindJSON(&product); err != nil {
 		c.String(400, err.Error())
 		return
@@ -165,6 +170,7 @@ func rentProductHandler(c *gin.Context, client *mongo.Client) {
 	c.String(200, "Product rented.")
 }
 
+// TODO:
 func editProductHandler(c *gin.Context, client *mongo.Client) {
 	var product models.Product
 	if err := c.BindJSON(&product); err != nil {
@@ -176,6 +182,7 @@ func editProductHandler(c *gin.Context, client *mongo.Client) {
 
 	err := data.Update(client, &product, string(id))
 	if err != nil {
+		log.Println(err)
 		c.String(500, "Update failed.")
 		return
 	}
