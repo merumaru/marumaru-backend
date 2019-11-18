@@ -100,8 +100,8 @@ func setupRoutes(router *gin.Engine, databaseURL, databaseName string) {
 	mongoDBClient = dbClient //global variable to save mongo client. used to access DB in JWT.
 
 	setUpJWT()
-	router.POST("/users/login", authMiddleware.LoginHandler)
-	router.POST("/users/signup", attachDB(dbClient, signUp))
+	router.POST("/login", authMiddleware.LoginHandler)
+	router.POST("/signup", attachDB(dbClient, signUp))
 
 	auth := router.Group("")
 	auth.Use(authMiddleware.MiddlewareFunc())
