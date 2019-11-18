@@ -2,6 +2,7 @@ package data
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"time"
@@ -89,19 +90,8 @@ func GetOrderByUserID(client *mongo.Client, id string) (*[]models.Order, error) 
 	var results []models.Order
 	collection := client.Database(cfg.DatabaseName).Collection(cfg.OrderCollection)
 
-	// filter := bson.M{"$or": []bson.D{bson.D{{"sellerID", id}}, bson.D{{"buyerID", id}}}}
-	filter := bson.D{{"sellerid", id}}
+	filter := bson.D{{"buyerid", id}}
 	cur, err := collection.Find(context.TODO(), filter)
-	for cur.Next(context.TODO()) {
-		var tmp models.Order
-		err := cur.Decode(&tmp)
-		if err == nil {
-			results = append(results, tmp)
-		}
-	}
-
-	filter = bson.D{{"buyerid", id}}
-	cur, err = collection.Find(context.TODO(), filter)
 	for cur.Next(context.TODO()) {
 		var tmp models.Order
 		err := cur.Decode(&tmp)
@@ -121,7 +111,6 @@ func AddOrder(client *mongo.Client, order *models.Order) error {
 
 func AddProduct(client *mongo.Client, product *models.Product) error {
 	collection := client.Database(cfg.DatabaseName).Collection(cfg.ProductCollection)
-
 	res, err := collection.InsertOne(context.TODO(), *product)
 	fmt.Println("InsertedID", res.InsertedID)
 	return err
@@ -184,6 +173,43 @@ func CancelOrder(client *mongo.Client, userID string, id string, whoCancelled bo
 	return err
 }
 
+func AddUser(client *mongo.Client, user *models.User) error {
+
+	u, err := GetUserByUserName(client, user.Username)
+	if err != nil {
+		log.Println("Error occured in getting user by username : ", err.Error())
+		return err
+	} else if u != nil {
+		return errors.New("User with same Username exists")
+	}
+
+	collection := client.Database(cfg.DatabaseName).Collection(cfg.UserCollection)
+	user.ID = primitive.NewObjectID()
+	insertResult, err := collection.InsertOne(context.TODO(), user)
+	if err != nil {
+		log.Println("Error occured in inserting new user : ", err.Error())
+		return err
+	}
+	fmt.Println("Inserted new user with ID: ", insertResult.InsertedID)
+	return nil
+}
+
+func GetUserByUserName(client *mongo.Client, username string) (*models.User, error) {
+	var result models.User
+	collection := client.Database(cfg.DatabaseName).Collection(cfg.UserCollection)
+	filter := bson.M{"username": username}
+
+	err := collection.FindOne(context.TODO(), filter).Decode(&result)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return nil, nil
+		}
+		return nil, err
+	}
+	fmt.Printf("Found a single document: %+v\n", result)
+	return &result, nil
+}
+
 func GetUserByID(client *mongo.Client, id string) (*models.User, error) {
 	var result models.User
 	collection := client.Database(cfg.DatabaseName).Collection(cfg.UserCollection)
@@ -191,6 +217,12 @@ func GetUserByID(client *mongo.Client, id string) (*models.User, error) {
 	filter := bson.D{{"_id", objID}}
 
 	err := collection.FindOne(context.TODO(), filter).Decode(&result)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return nil, nil
+		}
+		return nil, err
+	}
 	fmt.Printf("Found a single document: %+v\n", result)
-	return &result, err
+	return &result, nil
 }
