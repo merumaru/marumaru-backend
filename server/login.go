@@ -3,6 +3,7 @@ package server
 import (
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"time"
 
@@ -227,6 +228,7 @@ func checkLogin(c *gin.Context) (*models.Claims, error) {
 	claims := &models.Claims{}
 
 	if err != nil {
+		log.Println(err)
 		if err == http.ErrNoCookie {
 			// If the cookie is not set, return an unauthorized status
 			c.String(http.StatusUnauthorized, err.Error())
