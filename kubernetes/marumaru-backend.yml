@@ -14,9 +14,9 @@ spec:
         tier: backend
     spec:
       containers:
-        - name: marumaru-backend-app
+        - name: marumaru-app
           image: gcr.io/kouzoh-p-vamshi-teja/marumaru-backend-gke:v1
-          command: [ "/app/marumaru-backend" ]
+          command: [ "/app/marumaru" ]
           args: [
           "--mongodb-url=mongodb://mongo-service:27017/testing",
           "--database=testing"
