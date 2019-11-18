@@ -61,9 +61,9 @@ func StartServer(router *gin.Engine) {
 	log.Println("Server exiting")
 }
 
-func Connect2DB() *mongo.Client {
+func Connect2DB(databaseURL string) *mongo.Client {
 	// Set client options
-	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
+	clientOptions := options.Client().ApplyURI(databaseURL)
 	// Connect to MongoDB
 	client, err := mongo.Connect(context.TODO(), clientOptions)
 	if err != nil {

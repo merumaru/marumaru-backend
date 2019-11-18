@@ -5,8 +5,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func setupRoutes(router *gin.Engine) {
-	dbClient := Connect2DB()
+func setupRoutes(router *gin.Engine, databaseURL, databaseName string) {
+	dbClient := Connect2DB(databaseURL)
 	router.GET("/", hello)
 	router.GET("/login", loginPage)                   // TODO: not used
 	router.GET("/list", attachDB(dbClient, listPage)) // TODO: not used
