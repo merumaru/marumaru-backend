@@ -5,12 +5,12 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: ci-deploy
+      app: marumaru
       tier: backend
   template:
     metadata:
       labels:
-        app: ci-deploy
+        app: marumaru
         tier: backend
     spec:
       containers:
@@ -29,12 +29,12 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: backend-service
+  name: marumaru-backend
 spec:
   type: LoadBalancer
   ports:
     - port: 80
       targetPort: backend-port
   selector:
-    app: ci-deploy
+    app: marumaru
     tier: backend

@@ -2,6 +2,7 @@ package server
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"time"
 
@@ -24,20 +25,25 @@ func listPage(c *gin.Context, client *mongo.Client) {
 	c.String(200, "listPage")
 }
 
+// TODO:
 func getAllProductsHandler(c *gin.Context, client *mongo.Client) {
 	results, err := data.GetAllProducts(client)
 	if err != nil {
-		c.String(500, "Get Products failed.")
+		log.Println("Get products failed : ", err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "Get Products failed : " + err.Error(), "info": ""})
 		return
 	}
+	log.Println("Fetched results successfully")
 	c.JSON(200, results)
 }
 
+// TODO:
 func getProductByIDHandler(c *gin.Context, client *mongo.Client) {
 	id := c.Param("id")
 	result, err := data.GetProductByID(client, string(id))
 	fmt.Println(result)
 	if err != nil {
+		log.Println(err)
 		c.String(500, "Get Product by ID failed.")
 		return
 	}
@@ -55,13 +61,14 @@ func getOrderByIDHandler(c *gin.Context, client *mongo.Client) {
 	c.JSON(200, result)
 }
 
+// TODO:
 func addProductHandler(c *gin.Context, client *mongo.Client) {
-	// claims, err := checkLogin(c)
-	err := checkLogin_(c, client) // TODO:
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error(), "info": ""})
+	userCookie := getUserByCookie(c)
+	if userCookie == nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "User is not signed in", "info": ""})
 		return
 	}
+
 	var product models.Product
 	if err := c.BindJSON(&product); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error(), "info": ""})
@@ -69,31 +76,36 @@ func addProductHandler(c *gin.Context, client *mongo.Client) {
 	}
 	// automatically assign an ID
 	product.ID = primitive.NewObjectID()
-	// product.SellerID = claims.Username // TODO:
-	err = data.AddProduct(client, &product)
+	product.SellerID = userCookie.Username
+
+	err := data.AddProduct(client, &product)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to create product", "info": ""})
 		return
 	}
+	log.Println("Added product successfully")
 	c.JSON(http.StatusCreated, gin.H{"message": "Product created!", "info": product.ID})
 }
 
 func addOrderHandler(c *gin.Context, client *mongo.Client) {
-	// claims, err := checkLogin(c) // TODO: use this line
-	err := checkLogin_(c, client) // TODO:
-
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error(), "info": ""})
+	userCookie := getUserByCookie(c)
+	if userCookie == nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "User is not signed in", "info": ""})
 		return
 	}
+
 	var order models.Order
 	if err := c.BindJSON(&order); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error(), "info": ""})
 		return
 	}
 	order.ID = primitive.NewObjectID()
-	// order.BuyerName = claims.Username // TODO:
-	err = data.AddOrder(client, &order)
+	order.BuyerID = userCookie.Username // TODO:
+	if order.BuyerID == order.SellerID {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Cannot buy your own product!!", "info": ""})
+		return
+	}
+	err := data.AddOrder(client, &order)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to create product", "info": ""})
 		return
@@ -131,33 +143,34 @@ func getOrderByProductIDHandler(c *gin.Context, client *mongo.Client) {
 	c.JSON(200, results)
 }
 
+// TODO:
 func rentProductHandler(c *gin.Context, client *mongo.Client) {
-	claims, err := checkLogin(c)
-	if err != nil {
-		c.String(500, "Insertion failed.")
+	userCookie := getUserByCookie(c)
+	if userCookie == nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "User is not signed in", "info": ""})
 		return
 	}
 
-	var product models.Product
 	id := c.Param("id")
+	var product models.Product
 	if err := c.BindJSON(&product); err != nil {
 		c.String(400, err.Error())
 		return
 	}
-	buyerName := claims.Username
+	buyerName := userCookie.Username
 
 	dateFormat := "2006-01-02"
 	startDate, _ := time.Parse(dateFormat, c.Query("startDate"))
 	endDate, _ := time.Parse(dateFormat, c.Query("endDate"))
 
-	err = data.RentProduct(client, string(id), buyerName, startDate, endDate)
-	if err != nil {
+	if err := data.RentProduct(client, string(id), buyerName, startDate, endDate); err != nil {
 		c.String(500, "Rent failed.")
 		return
 	}
 	c.String(200, "Product rented.")
 }
 
+// TODO:
 func editProductHandler(c *gin.Context, client *mongo.Client) {
 	var product models.Product
 	if err := c.BindJSON(&product); err != nil {
@@ -169,6 +182,7 @@ func editProductHandler(c *gin.Context, client *mongo.Client) {
 
 	err := data.Update(client, &product, string(id))
 	if err != nil {
+		log.Println(err)
 		c.String(500, "Update failed.")
 		return
 	}
@@ -178,8 +192,13 @@ func editProductHandler(c *gin.Context, client *mongo.Client) {
 func cancelProductHandler(c *gin.Context, client *mongo.Client) {
 
 	id := c.Param("id")
-	claims, _ := checkLogin(c)
-	userID := claims.Username
+
+	userCookie := getUserByCookie(c)
+	if userCookie == nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "User is not signed in", "info": ""})
+		return
+	}
+	userID := userCookie.Username
 
 	if data.CancelOrder(client, string(userID), string(id), false) != nil ||
 		data.CancelOrder(client, string(userID), string(id), true) != nil {
@@ -195,7 +214,7 @@ func getUserByIDHandler(c *gin.Context, client *mongo.Client) {
 	result, err := data.GetUserByID(client, string(id))
 	fmt.Println(result)
 	if err != nil {
-		c.String(500, "Get User by ID failed. "+err.Error())
+		c.String(500, "Get User by ID failed."+err.Error())
 		return
 	}
 	c.JSON(200, result)
