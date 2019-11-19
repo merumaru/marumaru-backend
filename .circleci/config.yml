@@ -46,7 +46,7 @@ jobs:
       - gcp-gke/rollout-image:
           cluster: marumaru-v1
           deployment: backend-deployment
-          container: marumaru-backend-app
+          container: marumaru-app
           image: gcr.io/kouzoh-p-vamshi-teja/marumaru-backend-gke:v1
       - run:
           command: kubectl rollout restart deployment/backend-deployment

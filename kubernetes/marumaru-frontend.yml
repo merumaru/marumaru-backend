@@ -16,6 +16,7 @@ spec:
       containers:
         - name: marumaru-frontend-app
           image: gcr.io/kouzoh-p-vamshi-teja/marumaru-frontend-gke:v1
+          # command: ["npm start"]
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
