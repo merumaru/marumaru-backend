@@ -37,17 +37,17 @@ jobs:
       - gcr/gcr-auth
       - gcr/build-image:
           image: marumaru-backend-gke
-          tag: "v2"
+          tag: "v1"
       - gcr/push-image:
           image: marumaru-backend-gke
-          tag: "v2"
+          tag: "v1"
       - gcp-gke/install
       - gcp-gke/init
       - gcp-gke/rollout-image:
-          cluster: marumaru-v2
+          cluster: marumaru-v1
           deployment: marumaru-backend-deployment
           container: marumaru-backend-app
-          image: gcr.io/kouzoh-p-vamshi-teja/marumaru-backend-gke:v2
+          image: gcr.io/kouzoh-p-vamshi-teja/marumaru-backend-gke:v1
       - run:
           command: kubectl rollout restart deployment/marumaru-backend-deployment
 
