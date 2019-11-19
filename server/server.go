@@ -9,14 +9,14 @@ import (
 	"os/signal"
 	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/mongo"
-	"github.com/gin-contrib/cors"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 // CreateRouter creates and configures a server
-func CreateRouter() *gin.Engine {
+func CreateRouter(databaseURL, databaseName string) *gin.Engine {
 	router := gin.Default()
 	// router.Use(cors.Default())
 	router.Use(cors.New(cors.Config{
@@ -28,7 +28,7 @@ func CreateRouter() *gin.Engine {
 		AllowOriginFunc:  func(origin string) bool { return true },
 		MaxAge:           86400,
 	}))
-	setupRoutes(router)
+	setupRoutes(router, databaseURL, databaseName)
 	return router
 }
 
@@ -61,9 +61,9 @@ func StartServer(router *gin.Engine) {
 	log.Println("Server exiting")
 }
 
-func Connect2DB() *mongo.Client {
+func Connect2DB(databaseURL string) *mongo.Client {
 	// Set client options
-	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
+	clientOptions := options.Client().ApplyURI(databaseURL)
 	// Connect to MongoDB
 	client, err := mongo.Connect(context.TODO(), clientOptions)
 	if err != nil {

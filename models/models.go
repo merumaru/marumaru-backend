@@ -2,6 +2,7 @@ package models
 
 import (
 	"time"
+
 	"github.com/dgrijalva/jwt-go"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -18,31 +19,24 @@ type TimeDuration struct {
 }
 
 type Order struct {
-	ID         primitive.ObjectID	`bson:"_id, omitempty"`
-	SellerID string					`json:"sellerID"`
-	BuyerID  string					`json:"buyerID"`
-	ProductID  string				`json:"productID"`
-	TimeDuration					`json:"timeduration"`
-	IsCancelled bool				`json:"iscancelled"`
+	ID           primitive.ObjectID `bson:"_id, omitempty"`
+	SellerID     string             `json:"sellerID"`
+	BuyerID      string             `json:"buyerID"`
+	ProductID    string             `json:"productID"`
+	TimeDuration `json:"timeduration"`
+	IsCancelled  bool `json:"iscancelled"`
 }
 
 type Product struct {
-	ID          primitive.ObjectID `bson:"_id, omitempty"`
-	Photos      []string           `json:"photos"`
-	SellerID    string				`json:"userID"`
-	Name        string				`json:"name"`
-	Description string				`json:"description"`
-	Price       float32				`json:"price"`
-	TimeDuration					`json:"timeduration"`
-	Tags []string					`json:"tags"`
+	ID           primitive.ObjectID `bson:"_id, omitempty"`
+	Photos       []string           `json:"photos"`
+	SellerID     string             `json:"userID"`
+	Name         string             `json:"name"`
+	Description  string             `json:"description"`
+	Price        float32            `json:"price"`
+	TimeDuration `json:"timeduration"`
+	Tags         []string `json:"tags"`
 }
-
-
-// Suppose users just here, add database later
-// var users = map[string]string{
-// 	"user1": "password1",
-// 	"user2": "password2",
-// }
 
 type User struct {
 	ID          primitive.ObjectID `bson:"_id, omitempty"`
@@ -51,7 +45,7 @@ type User struct {
 	Email       string             `json:"email"`
 	Address     string             `json:"address"`
 	PhoneNumber string             `json:"phonenumber"`
-	Avatar 		string 				`json:"avatar"`
+	Avatar      string             `json:"avatar"`
 }
 
 type Claims struct {
