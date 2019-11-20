@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+ name: mongodb-set
+spec:
+ serviceName: "mongo"
+ selector:
+   matchLabels:
+     role: mongo
+     environment: test
+ replicas: 1
+ template:
+   metadata:
+     labels:
+       role: mongo
+       environment: test
+   spec:
+     terminationGracePeriodSeconds: 10
+     containers:
+       - name: mongo
+         image: mongo:4.2
+         ports:
+          - containerPort: 27017
+            name: mongodb-port
+         volumeMounts:
+           - name: mongo-persistent-storage
+             mountPath: /data/db
+ volumeClaimTemplates:
+ - metadata:
+     name: mongo-persistent-storage
+   spec:
+     accessModes: [ "ReadWriteOnce" ]
+     resources:
+       requests:
+         storage: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+ name: mongo-service
+ labels:
+   name: mongo
+spec:
+ ports:
+ - port: 27017
+   targetPort: mongodb-port
+ selector:
+   role: mongo

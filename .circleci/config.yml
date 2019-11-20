@@ -29,37 +29,37 @@ jobs:
       - run:
           command: make test
 
-  # deploy_master:
-  #   description: Deploy application to Google Kubernetes Engine after pushing to Google Container Registry
-  #   machine: true
-  #   steps:
-  #     - checkout
-  #     - gcr/gcr-auth
-  #     - gcr/build-image:
-  #         image: marumaru-backend
-  #         tag: "v2"
-  #     - gcr/push-image:
-  #         image: marumaru-backend
-  #         tag: "v2"
-  #     - gcp-gke/install
-  #     - gcp-gke/init
-  #     - gcp-gke/rollout-image:
-  #         cluster: marumaru-v2
-  #         deployment: marumaru-backend-deployment
-  #         container: marumaru-backend-app
-  #         image: gcr.io/kouzoh-p-vamshi-teja/marumaru-backend:v2
-  #     - run:
-  #         command: kubectl rollout restart deployment/marumaru-backend-deployment
+  deploy_master:
+    description: Deploy application to Google Kubernetes Engine after pushing to Google Container Registry
+    machine: true
+    steps:
+      - checkout
+      - gcr/gcr-auth
+      - gcr/build-image:
+          image: marumaru-backend-gke
+          tag: "v1"
+      - gcr/push-image:
+          image: marumaru-backend-gke
+          tag: "v1"
+      - gcp-gke/install
+      - gcp-gke/init
+      - gcp-gke/rollout-image:
+          cluster: marumaru-v1
+          deployment: backend-deployment
+          container: marumaru-app
+          image: gcr.io/kouzoh-p-vamshi-teja/marumaru-backend-gke:v1
+      - run:
+          command: kubectl rollout restart deployment/backend-deployment
 
 workflows:
   marumaru:
     jobs:
       - build
       - test
-      # - deploy_master:
-      #     requires:
-      #       - build
-      #       - test
-      #     filters:
-      #       branches:
-      #         only: master
+      - deploy_master:
+          requires:
+            - build
+            - test
+          filters:
+            branches:
+              only: kubernetes
